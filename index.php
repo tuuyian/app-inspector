@@ -7,8 +7,7 @@
     <input type="file" name="fileToUpload" id="fileToUpload" accept=".apk, .ipa">
     <input type="submit" value="Upload APK/IPA" name="submit">
 </form>
-
-    <?php
+<?php
 
     if(count(glob("uploads/*"))!=0) 
     {
