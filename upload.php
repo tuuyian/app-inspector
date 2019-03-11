@@ -12,7 +12,7 @@
     $appFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 	$filename =  "usablename." . $appFileType;
     $zip = new ZipArchive;
-    
+
 
     // Check if file already exists in the folder
     if (file_exists($target_file)) {
@@ -36,14 +36,14 @@
             echo "Sorry, there was an error uploading your file.";
         }
     }
-    
-    
+
+
     //Pull specific information based on type of file
     if($appFileType == "apk")
     {
 		//Opening the APK file using ZipArchive
 		$path = 'uploads/' . $filename;
-		if ($zip->open($path)) 
+		if ($zip->open($path))
 		{
 			//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder
 			if ($zip->getFromName('res/drawable/icon.png')!== false)
@@ -61,12 +61,12 @@
 				$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
 				copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", "uploads/".$fileinfo['basename']);
 			}
-			
+
 			//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
 			echo "<br><h4>SSL Pinning:</h4>";
 			if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
 			{
-				echo "Pinned using OkHttp3";    
+				echo "Pinned using OkHttp3";
 			}
 			else
 			{
@@ -80,14 +80,14 @@
 				{
 					echo "No SSL Pinning";
 				}
-				
+
 			}
 			//Extract Certificates to be read
 			if ($zip->getFromName('META-INF/CERT.RSA')!== false)
 			{
-				
+
 				$fileinfo = pathinfo('META-INF/CERT.RSA');
-				copy("zip://".realpath($path)."#META-INF/CERT.RSA", "uploads/CERT.RSA");		
+				copy("zip://".realpath($path)."#META-INF/CERT.RSA", "uploads/CERT.RSA");
 			}
 			else if ($zip->getFromName('META-INF/AND-PROD.RSA')!== false)
 			{
@@ -98,14 +98,14 @@
 			$fileinfo = pathinfo('AndroidManifest.xml');
 			copy("zip://".realpath($path)."#AndroidManifest.xml", "uploads/".$fileinfo['basename']);
 			$zip->close();
-		} 
-		else 
+		}
+		else
 		{
 			echo 'Cannot Read APK';
 		}
 		//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
 		exec("java -jar axmlprinter2.jar uploads/AndroidManifest.xml > uploads/ParsedAndroidManifest.xml");
-		echo "<h4>Android Manifest Details:</h4>";
+    echo "<h4>Android Manifest Details:</h4>";
 		error_reporting(E_ERROR | E_PARSE);
 		$dom = new DOMDocument();
 		$dom->load('uploads/ParsedAndroidManifest.xml');
@@ -116,14 +116,14 @@
 		echo "<br>Version Name :".$versionName[0]->versionName."<br/>";
 		echo "Version Code :".$versionCode[0]->versionCode."<br/>";
 		echo "Package Name :".$package[0]->package."<br/>";
-		
-        //Print out Certficate information
-        exec("keytool -printcert -file uploads/CERT.RSA", $certs);
-        echo "<br><h4>Certificates:</h4>";
-        echo implode("<br>" , $certs);
-        
+
+    //Print out Certficate information
+    exec("keytool -printcert -file uploads/CERT.RSA", $certs);
+    echo "<br><h4>Certificates:</h4>";
+    echo implode("<br>" , $certs);
+
     }
-    
+
     else if($appFileType == "ipa")
     {
 		//Unzipping IPA, trying to find the location of the info.plist and mobileprovision. Have to find the specfic app name within the Payload folder.
@@ -158,36 +158,35 @@
 			copy("zip://".realpath($path)."#Payload/" . $appName . "/Info.plist", "uploads/".$fileinfo['basename']);
 			$fileinfo = pathinfo('Payload/' . $appName . "/embedded.mobileprovision");
 			copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", "uploads/".$fileinfo['basename']);
-		} 
-		else 
+		}
+		else
 		{
 			echo 'Cannot Read IPA';
-		} 
+		}
 		/*TODO: Parsing the info.plist and embedded.mobileprovision. Also to find where to pull the logo.
 		  NOTE: exec(openssl smime -inform der -verify -noverify -in embedded.mobileprovision) > to parse mobileprovision
-
 		*/
-		
+
     }
-    
+
     /* Timed delete script to be implemented.
-	
-	if(count(glob("uploads/*"))!=0) 
+
+	if(count(glob("uploads/*"))!=0)
     {
-        if (time() - filectime('uploads/'.$filename) > 5) 
+        if (time() - filectime('uploads/'.$filename) > 5)
         {
             $src = 'uploads';
             $dir = opendir($src);
-            while(false !== ( $file = readdir($dir)) ) 
+            while(false !== ( $file = readdir($dir)) )
             {
-                if (( $file != '.' ) && ( $file != '..' )) 
+                if (( $file != '.' ) && ( $file != '..' ))
                 {
                     $full = $src . '/' . $file;
-                    if ( is_dir($full) ) 
+                    if ( is_dir($full) )
                     {
                         rmdir($full);
                     }
-                    else 
+                    else
                     {
                         unlink($full);
                     }
@@ -195,12 +194,9 @@
             }
         }
     } */
-    echo "<br><h4>Logo:</h4><img src='uploads/icon.png'>";
+
     ?>
-    
+
     <p><a href = 'index.php'>Return to Home Page</a></p>
 </body>
 </html>
-
-
-
