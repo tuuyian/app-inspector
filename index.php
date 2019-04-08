@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../../../favicon.ico">
     
-    <title>Application Inspector</title>
+    <title>Starter Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -52,8 +52,23 @@
         <div id = displayInfo></div>
         
         <?php
+            function removeDirectory($path) 
+            {
+                $files = glob($path . '/*');
+                foreach ($files as $file) 
+                {
+                    is_dir($file) ? removeDirectory($file) : unlink($file);
+                }
+                return;
+            }
+            
+        
+            if(file_exists("uploads"))
+            {
+                removeDirectory("uploads");
+            }
 
-            if(count(glob("uploads/*"))!=0) 
+        if(count(glob("uploads/*"))!=0) 
             {
                 $src = 'uploads';
                 $dir = opendir($src);

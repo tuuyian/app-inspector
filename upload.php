@@ -39,9 +39,9 @@
     margin-left: 20px;">
 <?php
     require_once __DIR__ . '/vendor/autoload.php';
-    
+    mkdir("uploads/". basename( $_FILES["fileToUpload"]["name"]), 0770, true);
 	//Setting Variables for file upload
-    $target_dir = "uploads/";
+    $target_dir = "uploads/". basename( $_FILES["fileToUpload"]["name"]). "/";
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
     $tmp_name = $_FILES["fileToUpload"]["tmp_name"];
     $uploadOk = 1;
@@ -78,24 +78,24 @@
     if($appFileType == "apk")
     {
 		//Opening the APK file using ZipArchive
-		$path = 'uploads/' . $filename;
+		$path = $target_dir . $filename;
 		if ($zip->open($path))
 		{
 			//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder
 			if ($zip->getFromName('res/drawable/icon.png')!== false)
 			{
 				$fileinfo = pathinfo('res/drawable/icon.png');
-				copy("zip://".realpath($path)."#res/drawable/icon.png", "uploads/".$fileinfo['basename']);
+				copy("zip://".realpath($path)."#res/drawable/icon.png", $target_dir .$fileinfo['basename']);
 			}
 			else if ($zip->getFromName('res/drawable-hdpi-v4/icon.png')!== false)
 			{
 				$fileinfo = pathinfo('res/drawable-hdpi-v4/icon.png');
-				copy("zip://".realpath($path)."#res/drawable-hdpi-v4/icon.png", "uploads/".$fileinfo['basename']);
+				copy("zip://".realpath($path)."#res/drawable-hdpi-v4/icon.png", $target_dir .$fileinfo['basename']);
 			}
 			else
 			{
 				$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
-				copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", "uploads/".$fileinfo['basename']);
+				copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", $target_dir .$fileinfo['basename']);
 			}
 
 			//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
@@ -107,8 +107,8 @@
 			else
 			{
 				$fileinfo = pathinfo('classes.dex');
-				copy("zip://".realpath($path)."#classes.dex", "uploads/".$fileinfo['basename']);
-				if(exec("dexdump uploads/classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+				copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
+				if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
 				{
 					echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
 				}
@@ -123,16 +123,16 @@
 			{
 
 				$fileinfo = pathinfo('META-INF/CERT.RSA');
-				copy("zip://".realpath($path)."#META-INF/CERT.RSA", "uploads/CERT.RSA");
+				copy("zip://".realpath($path)."#META-INF/CERT.RSA", "".$target_dir."/CERT.RSA");
 			}
 			else if ($zip->getFromName('META-INF/AND-PROD.RSA')!== false)
 			{
 				$fileinfo = pathinfo('META-INF/AND-PROD.RSA');
-				copy("zip://".realpath($path)."#META-INF/AND-PROD.RSA", "uploads/CERT.RSA");
+				copy("zip://".realpath($path)."#META-INF/AND-PROD.RSA", $target_dir. "CERT.RSA");
 			}
 			//Extract the Android Manifest from the APK and place it in the uploads folder to be read
 			$fileinfo = pathinfo('AndroidManifest.xml');
-			copy("zip://".realpath($path)."#AndroidManifest.xml", "uploads/".$fileinfo['basename']);
+			copy("zip://".realpath($path)."#AndroidManifest.xml", $target_dir .$fileinfo['basename']);
 			$zip->close();
 		}
 		else
@@ -140,11 +140,11 @@
 			echo "<p class = 'lead'>Cannot Read APK</p>";
 		}
 		//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
-		exec("java -jar axmlprinter2.jar uploads/AndroidManifest.xml > uploads/ParsedAndroidManifest.xml");
+		exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
     echo "<h4>Android Manifest Details:</h4>";
 		error_reporting(E_ERROR | E_PARSE);
 		$dom = new DOMDocument();
-		$dom->load('uploads/ParsedAndroidManifest.xml');
+		$dom->load($target_dir . 'ParsedAndroidManifest.xml');
 		$xml = simplexml_import_dom($dom);
 		$versionName = $xml->xpath('/manifest/@android:versionName');
 		$versionCode =$xml->xpath('/manifest/@android:versionCode');
@@ -154,17 +154,17 @@
 		echo "Package Name :".$package[0]->package."<br/></p>";
 
     //Print out Certficate information
-    exec("keytool -printcert -file uploads/CERT.RSA", $certs);
+    exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
     echo "<br><h4>Certificates:</h4>";
     echo "<p class = 'lead'";
     echo implode("<br>" , $certs);
-    echo "</p><br><h4>Logo:</h4><img src = 'uploads/icon.png'>";    
+    echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";    
     }
 
     else if($appFileType == "ipa")
     {
 		//Unzipping IPA, trying to find the location of the info.plist and mobileprovision. Have to find the specfic app name within the Payload folder.
-		$path = 'uploads/' . $filename;
+		$path = $target_dir . $filename;
 		$zip = zip_open($path);
 		if(is_resource($zip)) {
 
@@ -190,12 +190,12 @@
         }
 		//Extracting the plist and mobileprovision
 			$fileinfo = pathinfo('Payload/' . $appName . "/Info.plist");
-			copy("zip://".realpath($path)."#Payload/" . $appName . "/Info.plist", "uploads/".$fileinfo['basename']);
+			copy("zip://".realpath($path)."#Payload/" . $appName . "/Info.plist", $target_dir.$fileinfo['basename']);
 			$fileinfo = pathinfo('Payload/' . $appName . "/embedded.mobileprovision");
-			copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", "uploads/".$fileinfo['basename']);
-            exec("openssl smime -inform der -verify -noverify -in uploads/embedded.mobileprovision > uploads/parsed.mobileprovision");
-            $infoPlist = plist::Parse('uploads/Info.plist');
-            $embedded = plist::Parse('uploads/parsed.mobileprovision');
+			copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", $target_dir.$fileinfo['basename']);
+            exec("openssl smime -inform der -verify -noverify -in ".$target_dir."embedded.mobileprovision > ".$target_dir."parsed.mobileprovision");
+            $infoPlist = plist::Parse($target_dir.'Info.plist');
+            $embedded = plist::Parse($target_dir.'parsed.mobileprovision');
             
             echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
             echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
