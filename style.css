@@ -12,7 +12,7 @@ body
 
 .navbar
 {
-    background-color: #333333; !important
+    background-image: url(img/fiserv_background.png);
 }
 
 .lead
@@ -25,4 +25,17 @@ body
     display: inline;
     width: 80%;
     padding-bottom: 10px;
+}
+
+#displayInfo
+{
+    text-align: center;
+}
+
+.btn-primary
+{
+    background-color: #FF6600;
+    border-color: #FF6600;
+    height: 100px;
+    width: 300px;
 }
