@@ -213,54 +213,61 @@
             $infoPlist = plist::Parse($target_dir.'Info.plist');
             $embedded = plist::Parse($target_dir.'parsed.mobileprovision');
             
-            echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
-            echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
-            echo "<br>";
-            echo "CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"];
-            echo "<br>";
-            echo "CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"];
-            echo "<br>";
-            echo "CF Bundle Executable: " . $infoPlist["CFBundleExecutable"];
-            echo "<br>";
-            echo "CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"];
-            echo "<br>";
-            echo "CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"];
-            echo "<br>";
-            echo "CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"];
-            echo "<br>";
-            echo "Minimum OS Version: " . $infoPlist["MinimumOSVersion"];
-            echo "<br>";
+            if(isset($_POST["infoCheck"]))
+            {
+                echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
+                echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
+                echo "<br>";
+                echo "CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"];
+                echo "<br>";
+                echo "CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"];
+                echo "<br>";
+                echo "CF Bundle Executable: " . $infoPlist["CFBundleExecutable"];
+                echo "<br>";
+                echo "CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"];
+                echo "<br>";
+                echo "CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"];
+                echo "<br>";
+                echo "CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"];
+                echo "<br>";
+                echo "Minimum OS Version: " . $infoPlist["MinimumOSVersion"];
+                echo "<br>";
+            }
             
-            echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
-            echo "App ID Name: " . $embedded["AppIDName"];
-            echo "<br>";
-            echo "Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0];
-            echo "<br>";
-            echo "Creation Date: " . $embedded["CreationDate"];
-            echo "<br>";
-            echo "Platform: " . $embedded["Platform"][0];
-            echo "<br>";
-            echo "Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0];
-            echo "<br>";
-            echo "<b>Entitlements:</b> <br>";
-            echo "Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0];
-            echo "<br>";
-            echo "Application-Identifier: " . $embedded["Entitlements"]["application-identifier"];
-            echo "<br>";
-            echo "com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"];
-            echo "<br>";
-            echo "APS-Environment: " . $embedded["Entitlements"]["aps-environment"];
-            echo "<br>";
-            echo "Expiration Date: " . $embedded["ExpirationDate"];
-            echo "<br>";
-            echo "Name: " . $embedded["Name"];
-            echo "<br>";
-            echo "Team Name: " . $embedded["TeamName"];
-            echo "<br>";
-            echo "UUID: " . $embedded["UUID"];
-            echo "<br>";
-            echo "Version: " . $embedded["Version"];
-            echo "<br></p>";
+            if(isset($_POST["embeddedCheck"]))
+            {
+                echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
+                echo "App ID Name: " . $embedded["AppIDName"];
+                echo "<br>";
+                echo "Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0];
+                echo "<br>";
+                echo "Creation Date: " . $embedded["CreationDate"];
+                echo "<br>";
+                echo "Platform: " . $embedded["Platform"][0];
+                echo "<br>";
+                echo "Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0];
+                echo "<br>";
+                echo "<b>Entitlements:</b> <br>";
+                echo "Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0];
+                echo "<br>";
+                echo "Application-Identifier: " . $embedded["Entitlements"]["application-identifier"];
+                echo "<br>";
+                echo "com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"];
+                echo "<br>";
+                echo "APS-Environment: " . $embedded["Entitlements"]["aps-environment"];
+                echo "<br>";
+                echo "Expiration Date: " . $embedded["ExpirationDate"];
+                echo "<br>";
+                echo "Name: " . $embedded["Name"];
+                echo "<br>";
+                echo "Team Name: " . $embedded["TeamName"];
+                echo "<br>";
+                echo "UUID: " . $embedded["UUID"];
+                echo "<br>";
+                echo "Version: " . $embedded["Version"];
+                echo "<br></p>";
+            }
+            
             
             
             

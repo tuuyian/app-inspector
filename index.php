@@ -36,26 +36,27 @@
     </nav>
 
     <main role="main" class="container">
-
+        
         <div class="landing">
             <h1 id = "landingHeader">Fiserv Application Inspector</h1>
             <p id = "landingParagraph"class="lead">This tool is used to help verify the data integrity of built mobile applications. <br><br>Please upload an APK or IPA below!</p>
         </div>
-        <div id="form-container">
+        <div id = displayInfo>
+            <button class="btn btn-primary" onclick="uploadAPK()">APK</button>
+            <button class="btn btn-primary" onclick="uploadIPA()">IPA</button>
+        <!--<div id="form-container">
                 <form action="upload.php" method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <input type="file" class="form-control px-3" name="fileToUpload" id="fileToUpload" accept=".apk, .ipa">
                         </div>
                         <div class="form-group">
-                            <input type="checkbox" name="logoCheck" value="checked"> Logo <br>
-                            <input type="checkbox" name="sslCheck" value="checked"> SSL Pinning <br>
-                            <input type="checkbox" name="certificateCheck" value="checked"> Certificate <br>
-                            <input type="checkbox" name="manifestCheck" value="checked"> Manifest <br>
+                            <input type="checkbox" name="infoCheck" value="checked"> Info.Plist <br>
+                            <input type="checkbox" name="embeddedCheck" value="checked"> Embedded.mobileprovision <br>
                         </div>
                     <span class="input-group-btn"><button type="submit" name="submit" style="float: right;" class="btn btn-secondary btn-form display-4">Upload APK/IPA</button></span>
                 </form>
-         </div>
-        <div id = displayInfo></div>
+         </div>-->
+        </div>
         
         <?php
             function removeDirectory($path) 
@@ -104,6 +105,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+    <script type="text/javascript" src="./js/dom.js"></script> 
 </body>
 </html>
