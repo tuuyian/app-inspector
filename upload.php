@@ -1,9 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+    
+    <title>Starter Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+    
 <body>
 
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top">
+        <a class="navbar-brand" href="index.php">Application Inspector</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.php">Home<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="compare.html">Compare</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+     <main role="main" class="container" style="
+    margin-left: 20px;">
 <?php
+    require_once __DIR__ . '/vendor/autoload.php';
+    
 	//Setting Variables for file upload
     $target_dir = "uploads/";
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
@@ -16,24 +52,24 @@
 
     // Check if file already exists in the folder
     if (file_exists($target_file)) {
-        echo "Sorry, file already exists.</br>";
+        echo "<p class = 'lead'>Sorry, file already exists.</p></br>";
         $uploadOk = 0;
     }
     // Allow only APK/IPA file formats
     if($appFileType != "apk" && $appFileType != "ipa") {
-        echo "Sorry, only APK & IPA files are allowed.";
+        echo "<p class = 'lead'>Sorry, only APK & IPA files are allowed.</p>";
         $uploadOk = 0;
     }
     // Check if $uploadOk is set to 0 by an error
     if ($uploadOk == 0) {
-        echo "Sorry, your file was not uploaded.";
+        echo "<p class = 'lead'>Sorry, your file was not uploaded.</p>";
     // If checks are passed then try to upload the file
 
     } else {
         if (move_uploaded_file($tmp_name, $target_dir . $filename)) {
-            echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+            echo "<p class = 'lead'>The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.</p>";
         } else {
-            echo "Sorry, there was an error uploading your file.";
+            echo "<p class = 'lead'>Sorry, there was an error uploading your file.</p>";
         }
     }
 
@@ -66,7 +102,7 @@
 			echo "<br><h4>SSL Pinning:</h4>";
 			if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
 			{
-				echo "Pinned using OkHttp3";
+				echo "<p class = 'lead'>Pinned using OkHttp3</p>";
 			}
 			else
 			{
@@ -74,11 +110,11 @@
 				copy("zip://".realpath($path)."#classes.dex", "uploads/".$fileinfo['basename']);
 				if(exec("dexdump uploads/classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
 				{
-					echo "Pinned using HttpsURLConnection";
+					echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
 				}
 				else
 				{
-					echo "No SSL Pinning";
+					echo "<p class = 'lead'>No SSL Pinning</p>";
 				}
 
 			}
@@ -101,7 +137,7 @@
 		}
 		else
 		{
-			echo 'Cannot Read APK';
+			echo "<p class = 'lead'>Cannot Read APK</p>";
 		}
 		//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
 		exec("java -jar axmlprinter2.jar uploads/AndroidManifest.xml > uploads/ParsedAndroidManifest.xml");
@@ -113,15 +149,16 @@
 		$versionName = $xml->xpath('/manifest/@android:versionName');
 		$versionCode =$xml->xpath('/manifest/@android:versionCode');
 		$package = $xml->xpath('/manifest/@package');
-		echo "<br>Version Name :".$versionName[0]->versionName."<br/>";
+		echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
 		echo "Version Code :".$versionCode[0]->versionCode."<br/>";
-		echo "Package Name :".$package[0]->package."<br/>";
+		echo "Package Name :".$package[0]->package."<br/></p>";
 
     //Print out Certficate information
     exec("keytool -printcert -file uploads/CERT.RSA", $certs);
     echo "<br><h4>Certificates:</h4>";
+    echo "<p class = 'lead'";
     echo implode("<br>" , $certs);
-
+    echo "</p><br><h4>Logo:</h4><img src = 'uploads/icon.png'>";    
     }
 
     else if($appFileType == "ipa")
@@ -143,9 +180,7 @@
 				}
 				else
 				{
-				   echo "im here";
 				}
-				echo $appName;
 				break;
 			}
 			else
@@ -154,14 +189,69 @@
 			}
         }
 		//Extracting the plist and mobileprovision
-			$fileinfo = pathinfo('P-ayload/' . $appName . "/Info.plist");
+			$fileinfo = pathinfo('Payload/' . $appName . "/Info.plist");
 			copy("zip://".realpath($path)."#Payload/" . $appName . "/Info.plist", "uploads/".$fileinfo['basename']);
 			$fileinfo = pathinfo('Payload/' . $appName . "/embedded.mobileprovision");
 			copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", "uploads/".$fileinfo['basename']);
+            exec("openssl smime -inform der -verify -noverify -in uploads/embedded.mobileprovision > uploads/parsed.mobileprovision");
+            $infoPlist = plist::Parse('uploads/Info.plist');
+            $embedded = plist::Parse('uploads/parsed.mobileprovision');
+            
+            echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
+            echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
+            echo "<br>";
+            echo "CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"];
+            echo "<br>";
+            echo "CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"];
+            echo "<br>";
+            echo "CF Bundle Executable: " . $infoPlist["CFBundleExecutable"];
+            echo "<br>";
+            echo "CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"];
+            echo "<br>";
+            echo "CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"];
+            echo "<br>";
+            echo "CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"];
+            echo "<br>";
+            echo "Minimum OS Version: " . $infoPlist["MinimumOSVersion"];
+            echo "<br>";
+            
+            echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
+            echo "App ID Name: " . $embedded["AppIDName"];
+            echo "<br>";
+            echo "Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0];
+            echo "<br>";
+            echo "Creation Date: " . $embedded["CreationDate"];
+            echo "<br>";
+            echo "Platform: " . $embedded["Platform"][0];
+            echo "<br>";
+            echo "Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0];
+            echo "<br>";
+            echo "<b>Entitlements:</b> <br>";
+            echo "Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0];
+            echo "<br>";
+            echo "Application-Identifier: " . $embedded["Entitlements"]["application-identifier"];
+            echo "<br>";
+            echo "com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"];
+            echo "<br>";
+            echo "APS-Environment: " . $embedded["Entitlements"]["aps-environment"];
+            echo "<br>";
+            echo "Expiration Date: " . $embedded["ExpirationDate"];
+            echo "<br>";
+            echo "Name: " . $embedded["Name"];
+            echo "<br>";
+            echo "Team Name: " . $embedded["TeamName"];
+            echo "<br>";
+            echo "UUID: " . $embedded["UUID"];
+            echo "<br>";
+            echo "Version: " . $embedded["Version"];
+            echo "<br></p>";
+            
+            
+            
 		}
 		else
 		{
-			echo 'Cannot Read IPA';
+			echo "<p class = 'lead'>Cannot Read IPA</p>";
 		}
 		/*TODO: Parsing the info.plist and embedded.mobileprovision. Also to find where to pull the logo.
 		  NOTE: exec(openssl smime -inform der -verify -noverify -in embedded.mobileprovision) > to parse mobileprovision
@@ -196,7 +286,19 @@
     } */
 
     ?>
+        <div>            
+            <p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
+        </div>
 
-    <p><a href = 'index.php'>Return to Home Page</a></p>
+    </main>
+    <!-- /.container -->
+    
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 </body>
 </html>

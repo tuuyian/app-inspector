@@ -1,0 +1,28 @@
+
+body 
+{
+    padding-top: 5rem;
+}
+
+.landing 
+{
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.navbar
+{
+    background-color: #333333; !important
+}
+
+.lead
+{
+
+}
+
+#bookingNo
+{
+    display: inline;
+    width: 80%;
+    padding-bottom: 10px;
+}
