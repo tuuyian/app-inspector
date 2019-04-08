@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../../../favicon.ico">
     
-    <title>Starter Template for Bootstrap</title>
+    <title>Application Inspector</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -99,25 +99,29 @@
 			}
 
 			//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
-			echo "<br><h4>SSL Pinning:</h4>";
-			if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
-			{
-				echo "<p class = 'lead'>Pinned using OkHttp3</p>";
-			}
-			else
-			{
-				$fileinfo = pathinfo('classes.dex');
-				copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
-				if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
-				{
-					echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
-				}
-				else
-				{
-					echo "<p class = 'lead'>No SSL Pinning</p>";
-				}
-
-			}
+            if (isset($_POST["sslCheck"]))
+            {
+                echo "<br><h4>SSL Pinning:</h4>";
+                if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
+                {
+                    echo "<p class = 'lead'>Pinned using OkHttp3</p>";
+                }
+                else
+                {
+                    $fileinfo = pathinfo('classes.dex');
+                    copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
+                    if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+                    {
+                        echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
+                    }
+                    else
+                    {
+                        echo "<p class = 'lead'>No SSL Pinning</p>";
+                    }
+			    } 
+            }
+            
+			
 			//Extract Certificates to be read
 			if ($zip->getFromName('META-INF/CERT.RSA')!== false)
 			{
@@ -140,25 +144,37 @@
 			echo "<p class = 'lead'>Cannot Read APK</p>";
 		}
 		//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
-		exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
-    echo "<h4>Android Manifest Details:</h4>";
-		error_reporting(E_ERROR | E_PARSE);
-		$dom = new DOMDocument();
-		$dom->load($target_dir . 'ParsedAndroidManifest.xml');
-		$xml = simplexml_import_dom($dom);
-		$versionName = $xml->xpath('/manifest/@android:versionName');
-		$versionCode =$xml->xpath('/manifest/@android:versionCode');
-		$package = $xml->xpath('/manifest/@package');
-		echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
-		echo "Version Code :".$versionCode[0]->versionCode."<br/>";
-		echo "Package Name :".$package[0]->package."<br/></p>";
+        if(isset($_POST["manifestCheck"]))
+        {
+            exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
+            echo "<h4>Android Manifest Details:</h4>";
+            error_reporting(E_ERROR | E_PARSE);
+            $dom = new DOMDocument();
+            $dom->load($target_dir . 'ParsedAndroidManifest.xml');
+            $xml = simplexml_import_dom($dom);
+            $versionName = $xml->xpath('/manifest/@android:versionName');
+            $versionCode =$xml->xpath('/manifest/@android:versionCode');
+            $package = $xml->xpath('/manifest/@package');
+            echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
+            echo "Version Code :".$versionCode[0]->versionCode."<br/>";
+            echo "Package Name :".$package[0]->package."<br/></p>";
+        }
+		
 
     //Print out Certficate information
-    exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
-    echo "<br><h4>Certificates:</h4>";
-    echo "<p class = 'lead'";
-    echo implode("<br>" , $certs);
-    echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";    
+        if(isset($_POST["certificateCheck"]))
+        {
+            exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
+            echo "<br><h4>Certificates:</h4>";
+            echo "<p class = 'lead'";
+            echo implode("<br>" , $certs); 
+        }
+        
+        if(isset($_POST["logoCheck"]))
+        {
+            echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
+        }
+       
     }
 
     else if($appFileType == "ipa")
