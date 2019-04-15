@@ -262,6 +262,8 @@
                 echo "<br>";
                 echo "Team Name: " . $embedded["TeamName"];
                 echo "<br>";
+				echo "Time To Live: " . $embedded["TimeToLive"];
+                echo "<br>";
                 echo "UUID: " . $embedded["UUID"];
                 echo "<br>";
                 echo "Version: " . $embedded["Version"];
