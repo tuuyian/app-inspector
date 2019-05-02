@@ -14,6 +14,13 @@ class ComposerStaticInit41a0b253b61075703dcaecdaff24fa7e
                 0 => __DIR__ . '/..' . '/callumacrae/plist',
             ),
         ),
+        'C' => 
+        array (
+            'CFPropertyList' => 
+            array (
+                0 => __DIR__ . '/..' . '/rodneyrehm/plist/classes',
+            ),
+        ),
     );
 
     public static function getInitializer(ClassLoader $loader)

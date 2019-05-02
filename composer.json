@@ -1,5 +1,6 @@
 {
     "require": {
-        "callumacrae/plist": "^1.1"
+        "callumacrae/plist": "^1.1",
+        "rodneyrehm/plist": "^2.0"
     }
 }

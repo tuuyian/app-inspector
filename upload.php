@@ -210,9 +210,12 @@
 			$fileinfo = pathinfo('Payload/' . $appName . "/embedded.mobileprovision");
 			copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", $target_dir.$fileinfo['basename']);
             exec("openssl smime -inform der -verify -noverify -in ".$target_dir."embedded.mobileprovision > ".$target_dir."parsed.mobileprovision");
-            $infoPlist = plist::Parse($target_dir.'Info.plist');
             $embedded = plist::Parse($target_dir.'parsed.mobileprovision');
-            
+            $content = file_get_contents($target_dir.'Info.plist');
+			$plist = new CFPropertyList\CFPropertyList();
+			$plist->parseBinary($content);
+			$infoPlist = $plist->toArray();
+			
             if(isset($_POST["infoCheck"]))
             {
                 echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";

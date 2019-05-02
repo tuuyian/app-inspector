@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'plist' => array($vendorDir . '/callumacrae/plist'),
+    'CFPropertyList' => array($vendorDir . '/rodneyrehm/plist/classes'),
 );
