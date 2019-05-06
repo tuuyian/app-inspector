@@ -11,7 +11,7 @@
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 
     
@@ -39,7 +39,7 @@
     margin-left: 20px;">
 	<div>
 		<div id="form-container">
-			<form action="test.php" method="post" enctype="multipart/form-data">
+			<form action="compareOutput.php" method="post" enctype="multipart/form-data">
 				<div class="form-group"><input type="file" class="form-control px-3" name="fileToUpload" id="fileToUpload" accept=".apk, .ipa"></div>
 				<div class="form-group"><input type="file" class="form-control px-3" name="fileToUpload1" id="fileToUpload1" accept=".apk, .ipa"></div>
 				<div class="form-group"><input type="checkbox" name="sslCheck" value="checked"> SSL Pinning <br><input type="checkbox" name="manifestCheck" value="checked"> Manifest <br><input type="checkbox" name="certificateCheck" value="checked"> Certificate <br></div><span class="input-group-btn">
