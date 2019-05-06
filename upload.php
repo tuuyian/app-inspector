@@ -80,119 +80,123 @@
     }
 
 
-    //Pull specific information based on type of file
     if($appFileType == "apk")
-    {
-		//Opening the APK file using ZipArchive
-		$path = $target_dir . $filename;
-		if ($zip->open($path))
 		{
-			//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder
-			if ($zip->getFromName('res/drawable/icon.png')!== false)
+			$fileOutput = printInfo($fileOutput, "<h4 style='margin:0;display:inline'>Filename: " . basename( $_FILES["fileToUpload"]["name"]) ."</h4><br><br> \r\n");
+			
+			//Opening the APK file using ZipArchive
+			$path = $target_dir . $filename;
+			
+			if ($zip->open($path))
 			{
-				$fileinfo = pathinfo('res/drawable/icon.png');
-				copy("zip://".realpath($path)."#res/drawable/icon.png", $target_dir .$fileinfo['basename']);
-			}
-			else if ($zip->getFromName('res/drawable-hdpi-v4/icon.png')!== false)
-			{
-				$fileinfo = pathinfo('res/drawable-hdpi-v4/icon.png');
-				copy("zip://".realpath($path)."#res/drawable-hdpi-v4/icon.png", $target_dir .$fileinfo['basename']);
+				//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder
+				if ($zip->getFromName('res/drawable/icon.png')!== false)
+				{
+					$fileinfo = pathinfo('res/drawable/icon.png');
+					copy("zip://".realpath($path)."#res/drawable/icon.png", $target_dir .$fileinfo['basename']);
+				}
+				else if ($zip->getFromName('res/drawable-hdpi-v4/icon.png')!== false)
+				{
+					$fileinfo = pathinfo('res/drawable-hdpi-v4/icon.png');
+					copy("zip://".realpath($path)."#res/drawable-hdpi-v4/icon.png", $target_dir .$fileinfo['basename']);
+				}
+				else
+				{
+					$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
+					copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", $target_dir .$fileinfo['basename']);
+				}
+				
+				//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
+				if (isset($_POST["sslCheck"]))
+				{
+					//echo "<br><h4>SSL Pinning:</h4>";
+					$fileOutput = printInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br> \r\n");
+					$fileOutput = printInfo($fileOutput,"<p class = 'lead' style='margin:0;display:inline'>\r\n");
+					if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
+					{
+						//echo "<p class = 'lead'>Pinned using OkHttp3</p>";
+						$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using OkHttp3</p><br> \r\n");
+					}
+					else
+					{
+						$fileinfo = pathinfo('classes.dex');
+						copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
+						if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+						{
+							//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
+							$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
+						}
+						else
+						{
+							//echo "<p class = 'lead'>No SSL Pinning</p>";
+							$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
+						}
+					} 
+				}
+				
+				
+				//Extract Certificates to be read
+				if ($zip->getFromName('META-INF/CERT.RSA')!== false)
+				{
+
+					$fileinfo = pathinfo('META-INF/CERT.RSA');
+					copy("zip://".realpath($path)."#META-INF/CERT.RSA", "".$target_dir."/CERT.RSA");
+				}
+				else if ($zip->getFromName('META-INF/AND-PROD.RSA')!== false)
+				{
+					$fileinfo = pathinfo('META-INF/AND-PROD.RSA');
+					copy("zip://".realpath($path)."#META-INF/AND-PROD.RSA", $target_dir. "CERT.RSA");
+				}
+				//Extract the Android Manifest from the APK and place it in the uploads folder to be read
+				$fileinfo = pathinfo('AndroidManifest.xml');
+				copy("zip://".realpath($path)."#AndroidManifest.xml", $target_dir .$fileinfo['basename']);
+				$zip->close();
 			}
 			else
 			{
-				$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
-				copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", $target_dir .$fileinfo['basename']);
+				echo "<p class = 'lead'>Cannot Read APK</p>";
 			}
-	
-			//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
-            if (isset($_POST["sslCheck"]))
-            {
-                //echo "<br><h4>SSL Pinning:</h4>";
-				$fileOutput = printInfo($fileOutput, "<br><h4>SSL Pinning:</h4> \r\n");
-                if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
-                {
-                    //echo "<p class = 'lead'>Pinned using OkHttp3</p>";
-					$fileOutput = printInfo($fileOutput, "<p class = 'lead'>Pinned using OkHttp3</p> \r\n");
-                }
-                else
-                {
-                    $fileinfo = pathinfo('classes.dex');
-                    copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
-                    if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
-                    {
-                        //echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
-						$fileOutput = printInfo($fileOutput, "<p class = 'lead'>Pinned using HttpsURLConnection</p> \r\n");
-                    }
-                    else
-                    {
-                        //echo "<p class = 'lead'>No SSL Pinning</p>";
-						$fileOutput = printInfo($fileOutput, "<p class = 'lead'>No SSL Pinning</p> \r\n");
-                    }
-			    } 
-            }
-            
+			//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
+			if(isset($_POST["manifestCheck"]))
+			{
+				exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
+				//echo "<h4>Android Manifest Details:</h4>";
+				$fileOutput = printInfo($fileOutput, "</p><h4>Android Manifest Details:</h4><br> \r\n");
+				error_reporting(E_ERROR | E_PARSE);
+				$dom = new DOMDocument();
+				$dom->load($target_dir . 'ParsedAndroidManifest.xml');
+				$xml = simplexml_import_dom($dom);
+				$versionName = $xml->xpath('/manifest/@android:versionName');
+				$versionCode =$xml->xpath('/manifest/@android:versionCode');
+				$package = $xml->xpath('/manifest/@package');
+				//echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
+				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Name :".$versionName[0]->versionName."</p><br/> \r\n");
+				//echo "Version Code :".$versionCode[0]->versionCode."<br/>";
+				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Code :".$versionCode[0]->versionCode."</p><br/> \r\n");
+				//echo "Package Name :".$package[0]->package."<br/></p>";
+				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Package Name :".$package[0]->package."</p><br> \r\n");
+			}
 			
-			//Extract Certificates to be read
-			if ($zip->getFromName('META-INF/CERT.RSA')!== false)
-			{
 
-				$fileinfo = pathinfo('META-INF/CERT.RSA');
-				copy("zip://".realpath($path)."#META-INF/CERT.RSA", "".$target_dir."/CERT.RSA");
-			}
-			else if ($zip->getFromName('META-INF/AND-PROD.RSA')!== false)
+		//Print out Certficate information
+			if(isset($_POST["certificateCheck"]))
 			{
-				$fileinfo = pathinfo('META-INF/AND-PROD.RSA');
-				copy("zip://".realpath($path)."#META-INF/AND-PROD.RSA", $target_dir. "CERT.RSA");
+				exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
+				//echo "<br><h4>Certificates:</h4>";
+				$fileOutput = printInfo($fileOutput, "<br><h4>Certificates:</h4> \r\n");
+				$fileOutput = printInfo($fileOutput, "<p class = 'lead'>");
+				//echo implode("<br>" , $certs); 
+				$fileOutput = printInfo($fileOutput, implode ("<br>\r\n", $certs));
 			}
-			//Extract the Android Manifest from the APK and place it in the uploads folder to be read
-			$fileinfo = pathinfo('AndroidManifest.xml');
-			copy("zip://".realpath($path)."#AndroidManifest.xml", $target_dir .$fileinfo['basename']);
-			$zip->close();
+			
+			if(isset($_POST["logoCheck"]))
+			{
+				echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
+			}
+			
+			$filename = 'apkLog.txt';
+			$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
 		}
-		else
-		{
-			echo "<p class = 'lead'>Cannot Read APK</p>";
-		}
-		//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
-        if(isset($_POST["manifestCheck"]))
-        {
-            exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
-            //echo "<h4>Android Manifest Details:</h4>";
-			$fileOutput = printInfo($fileOutput, "<h4>Android Manifest Details:</h4> \r\n");
-            error_reporting(E_ERROR | E_PARSE);
-            $dom = new DOMDocument();
-            $dom->load($target_dir . 'ParsedAndroidManifest.xml');
-            $xml = simplexml_import_dom($dom);
-            $versionName = $xml->xpath('/manifest/@android:versionName');
-            $versionCode =$xml->xpath('/manifest/@android:versionCode');
-            $package = $xml->xpath('/manifest/@package');
-            //echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
-			$fileOutput = printInfo($fileOutput, "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/> \r\n");
-            //echo "Version Code :".$versionCode[0]->versionCode."<br/>";
-			$fileOutput = printInfo($fileOutput, "Version Code :".$versionCode[0]->versionCode."<br/> \r\n");
-            //echo "Package Name :".$package[0]->package."<br/></p>";
-			$fileOutput = printInfo($fileOutput, "Package Name :".$package[0]->package."<br/></p> \r\n");
-        }
-		
-
-    //Print out Certficate information
-        if(isset($_POST["certificateCheck"]))
-        {
-            exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
-            //echo "<br><h4>Certificates:</h4>";
-			$fileOutput = printInfo($fileOutput, "<br><h4>Certificates:</h4> \r\n");
-            echo "<p class = 'lead'";
-            //echo implode("<br>" , $certs); 
-			$fileOutput = printInfo($fileOutput, implode ("<br>\r\n", $certs));
-        }
-        
-        if(isset($_POST["logoCheck"]))
-        {
-            echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
-        }
-		
-		
-    }
 	
     else if($appFileType == "ipa")
     {
@@ -230,69 +234,23 @@
             $embedded = plist::Parse($target_dir.'parsed.mobileprovision');
             $content = file_get_contents($target_dir.'Info.plist');
 			$plist = new CFPropertyList\CFPropertyList();
-			$plist->parseBinary($content);
+			$plist->parse($content);
 			$infoPlist = $plist->toArray();
 			
             if(isset($_POST["infoCheck"]))
             {
-                echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
-                echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
-                echo "<br>";
-                echo "CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"];
-                echo "<br>";
-                echo "CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"];
-                echo "<br>";
-                echo "CF Bundle Executable: " . $infoPlist["CFBundleExecutable"];
-                echo "<br>";
-                echo "CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"];
-                echo "<br>";
-                echo "CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"];
-                echo "<br>";
-                echo "CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"];
-                echo "<br>";
-                echo "Minimum OS Version: " . $infoPlist["MinimumOSVersion"];
-                echo "<br>";
+				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><h4><b>Info.plist Information:</b></h4><br>\r\n Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"] . "<br>\r\n CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"] . "<br>\r\n CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"]. "<br>\r\n CF Bundle Executable: " . $infoPlist["CFBundleExecutable"]. "<br>\r\n CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"]."<br>\r\n CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"]."<br>\r\n CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"]."<br>\r\n Minimum OS Version: " . $infoPlist["MinimumOSVersion"]."<br></p>\r\n");
             }
             
             if(isset($_POST["embeddedCheck"]))
             {
-                echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
-                echo "App ID Name: " . $embedded["AppIDName"];
-                echo "<br>";
-                echo "Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0];
-                echo "<br>";
-                echo "Creation Date: " . $embedded["CreationDate"];
-                echo "<br>";
-                echo "Platform: " . $embedded["Platform"][0];
-                echo "<br>";
-                echo "Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0];
-                echo "<br>";
-                echo "<b>Entitlements:</b> <br>";
-                echo "Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0];
-                echo "<br>";
-                echo "Application-Identifier: " . $embedded["Entitlements"]["application-identifier"];
-                echo "<br>";
-                echo "com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"];
-                echo "<br>";
-                echo "APS-Environment: " . $embedded["Entitlements"]["aps-environment"];
-                echo "<br>";
-                echo "Expiration Date: " . $embedded["ExpirationDate"];
-                echo "<br>";
-                echo "Name: " . $embedded["Name"];
-                echo "<br>";
-                echo "Team Name: " . $embedded["TeamName"];
-                echo "<br>";
-				echo "Time To Live: " . $embedded["TimeToLive"];
-                echo "<br>";
-                echo "UUID: " . $embedded["UUID"];
-                echo "<br>";
-                echo "Version: " . $embedded["Version"];
-                echo "<br></p>";
+				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><br><h4><b>Embedded.mobileprovision Information:</b></h4><br>\r\n App ID Name: " . $embedded["AppIDName"]."<br>\r\n Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0]."<br>\r\n Creation Date: " . $embedded["CreationDate"]."<br>\r\n Platform: " . $embedded["Platform"][0]."<br>\r\n Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0]."<br>\r\n <b>Entitlements:</b> <br>\r\n Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0]."<br>\r\n Application-Identifier: " . $embedded["Entitlements"]["application-identifier"]."<br>\r\n com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"]."<br>\r\n APS-Environment: " . $embedded["Entitlements"]["aps-environment"]."<br>\r\n Expiration Date: " . $embedded["ExpirationDate"]."<br>\r\n Name: " . $embedded["Name"]."<br>\r\n Team Name: " . $embedded["TeamName"]."<br>\r\n Time To Live: " . $embedded["TimeToLive"]."<br>\r\n UUID: " . $embedded["UUID"]."<br>\r\n Version: " . $embedded["Version"]."<br></p>\r\n");
             }
             
             
             
-            
+            $filename = 'ipaLog.txt';
+			$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
 		}
 		else
 		{
@@ -304,8 +262,7 @@
 
     }
 
-		$filename = 'apkLog.txt';
-		$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
+		
     /* Timed delete script to be implemented.
 
 	if(count(glob("uploads/*"))!=0)
@@ -335,10 +292,9 @@
     ?>
         <div>
 			<form action="logUploaded.php" method="post" enctype="multipart/form-data">
-                        <button>Move Log</button>
-						<p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
+                        <button>Make current log</button>	
             </form>
-            
+            <p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
         </div>
 
     </main>

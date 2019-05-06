@@ -74,6 +74,11 @@
             {
                 removeDirectory("uploads");
             }
+			
+			 if(file_exists("logs/temp"))
+            {
+                removeDirectory("logs/temp");
+            }
 
         if(count(glob("uploads/*"))!=0) 
             {

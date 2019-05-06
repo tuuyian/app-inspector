@@ -38,8 +38,15 @@
      <main role="main" class="container" style="
     margin-left: 20px;">
 <?php
-   rename("logs/temp/apkLog.txt", "logs/apkLog.txt");
-
+	if (file_exists("logs/temp/apkLog.txt")) 
+	{
+		rename("logs/temp/apkLog.txt", "logs/submittedAPKLog.txt");
+	}
+	
+	if (file_exists("logs/temp/ipaLog.txt")) 
+	{
+		rename("logs/temp/ipaLog.txt", "logs/submittedIPALog.txt");
+	}
 
     ?>
         <div>   

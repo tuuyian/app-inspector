@@ -39,10 +39,18 @@
     margin-left: 20px;">
 	<div>
 		<div id="form-container">
+			<h4>Compare Two Files:</h4>
 			<form action="compareOutput.php" method="post" enctype="multipart/form-data">
 				<div class="form-group"><input type="file" class="form-control px-3" name="fileToUpload" id="fileToUpload" accept=".apk, .ipa"></div>
 				<div class="form-group"><input type="file" class="form-control px-3" name="fileToUpload1" id="fileToUpload1" accept=".apk, .ipa"></div>
-				<div class="form-group"><input type="checkbox" name="sslCheck" value="checked"> SSL Pinning <br><input type="checkbox" name="manifestCheck" value="checked"> Manifest <br><input type="checkbox" name="certificateCheck" value="checked"> Certificate <br></div><span class="input-group-btn">
+				<div class="form-group"><input type="hidden" name="sslCheck" value="checked"><br><input type="hidden" name="manifestCheck" value="checked"><br><input type="hidden" name="certificateCheck" value="checked">  <br><input type="hidden" name="infoCheck" value="checked"><br><input type="hidden" name="embeddedCheck" value="checked"><br><input type="hidden" id="compareTwoFiles" name="compareTwoFiles" value="checked"> <br></div><span class="input-group-btn">
+				<button type="submit" name="submit" style="float: right;" class="btn btn-secondary btn-form display-4">Upload APK/IPA</button><br>
+				</span>
+			</form>
+			<h4>Compare with Log:</h4>
+			<br><form action="compareOutput.php" method="post" enctype="multipart/form-data">
+				<div class="form-group"><input type="file" class="form-control px-3" name="fileToUpload" id="fileToUpload" accept=".apk, .ipa"></div>
+				<div class="form-group"><input type="hidden" name="sslCheck" value="checked"> <br><input type="hidden" name="manifestCheck" value="checked">  <br><input type="hidden" name="certificateCheck" value="checked">  <br><input type="hidden" name="infoCheck" value="checked"><br><input type="hidden" name="embeddedCheck" value="checked">  <br><input type="hidden" id="compareWithLog" name="compareWithLog" value="checked"> <br></div><span class="input-group-btn">
 				<button type="submit" name="submit" style="float: right;" class="btn btn-secondary btn-form display-4">Upload APK/IPA</button>
 				</span>
 			</form>

@@ -1,0 +1,29 @@
+<h4 style='margin:0;display:inline'>Filename: com.firsthawaiian.mobile-17.1.89-www.apk.co.apk</h4><br><br> 
+
+<br><h4>SSL Pinning:</h4><br> 
+
+<p class = 'lead' style='margin:0;display:inline'>
+
+<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> 
+
+</p><h4>Android Manifest Details:</h4><br> 
+
+<p class = 'lead' style='margin:0;display:inline'>Version Name :17.1.89</p><br/> 
+
+<p class = 'lead' style='margin:0;display:inline'>Version Code :48</p><br/> 
+
+<p class = 'lead' style='margin:0;display:inline'>Package Name :com.firsthawaiian.mobile</p><br> 
+
+<br><h4>Certificates:</h4> 
+
+<p class = 'lead'>
+Owner: CN="Fiserv Solutions, Inc.", OU="Fiserv Solutions, Inc.", O="Fiserv Solutions, Inc.", L=Norcross, ST=GA, C=US<br>
+Issuer: CN="Fiserv Solutions, Inc.", OU="Fiserv Solutions, Inc.", O="Fiserv Solutions, Inc.", L=Norcross, ST=GA, C=US<br>
+Serial number: 4e2ffb4a<br>
+Valid from: Wed Jul 27 23:49:30 NZST 2011 until: Thu Apr 29 23:49:30 NZST 2066<br>
+Certificate fingerprints:<br>
+	 SHA1: 0E:37:81:08:81:87:33:D2:E3:C9:91:E5:6F:10:D5:DE:F2:84:79:DC<br>
+	 SHA256: 76:CC:65:1F:84:01:0F:73:6A:C5:3C:6F:86:FF:55:32:84:D2:0E:B4:95:28:36:AA:46:A1:3E:82:1F:94:DE:CC<br>
+Signature algorithm name: SHA1withRSA<br>
+Subject Public Key Algorithm: 4096-bit RSA key<br>
+Version: 3

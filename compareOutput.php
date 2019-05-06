@@ -11,7 +11,7 @@
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 	<style type="text/css">
         .btn-primary {
             height: 50px;
@@ -31,10 +31,10 @@
 
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" href="index.php">Home<span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item active">
                     <a class="nav-link" href="compare.php">Compare</a>
                 </li>
             </ul>
@@ -46,12 +46,12 @@
 	<button class="btn btn-primary" onclick="file1()">File 1 Info</button>
     <button class="btn btn-primary" onclick="file2()">File 2 Info</button>
 	<button class="btn btn-primary" onclick="diff()">Diff</button>
-	<div id = "hi"></div>
+	<div id = "displayInfo"></div>
 <?php
 	include 'openFile.php';
+	require_once './vendor/class.Diff.php';
 	require_once __DIR__ . '/vendor/autoload.php';
-	use SebastianBergmann\Diff\Differ;
-	if (isset($_POST["sslCheck"]))
+	if (isset($_POST["compareTwoFiles"]))
 	{
 		$tmpName = $_FILES["fileToUpload"]["tmp_name"];
 		$tmpName1 = $_FILES["fileToUpload1"]["tmp_name"];
@@ -68,12 +68,40 @@
 		$stringBean1 = fread($myfile1,filesize("logs/temp/". $textFile2));
 		fclose($myfile1);
 		
-		$differ = new Differ;
-		$fileDiff = $differ->diff($stringBean, $stringBean1);
+		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, "logs/temp/". $textFile2));
 		$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
 		//echo implode ("<br>", );
 	}
-
+	if (isset($_POST["compareWithLog"]))
+	{
+		$tmpName = $_FILES["fileToUpload"]["tmp_name"];
+		$firstUpload = basename($_FILES["fileToUpload"]["name"]);
+		$textFile1 = fileUpload($firstUpload, $tmpName);
+		$appFileType = strtolower(pathinfo($firstUpload,PATHINFO_EXTENSION));
+		 $appFileType;
+		$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
+		$stringBean = fread($myfile,filesize("logs/temp/". $textFile1));
+		fclose($myfile);
+		if ($appFileType == "apk")
+		{
+			$myfile1 = fopen("logs/submittedAPKLog.txt", "r") or die("Unable to open file!");
+			$stringBean1 = fread($myfile1,filesize("logs/submittedAPKLog.txt"));
+			$submittedLog = "logs/submittedAPKLog.txt";
+			fclose($myfile1);
+		}
+		
+		else if($appFileType == "ipa")
+		{
+			$myfile1 = fopen("logs/submittedIPALog.txt", "r") or die("Unable to open file!");
+			$stringBean1 = fread($myfile1,filesize("logs/submittedIPALog.txt"));
+			$submittedLog = "logs/submittedIPALog.txt";
+			fclose($myfile1);
+		}
+		
+		
+		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, $submittedLog));
+		$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
+	}
 	function fileUpload($fileToUpload, $tempname)
 	{	
 		mkdir("uploads/". $fileToUpload, 0770, true);
@@ -194,7 +222,6 @@
 				exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
 				//echo "<h4>Android Manifest Details:</h4>";
 				$fileOutput = appendInfo($fileOutput, "</p><h4>Android Manifest Details:</h4><br> \r\n");
-				$fileOutput = appendInfo($fileOutput, "<p class = 'lead'>");
 				error_reporting(E_ERROR | E_PARSE);
 				$dom = new DOMDocument();
 				$dom->load($target_dir . 'ParsedAndroidManifest.xml');
@@ -263,15 +290,17 @@
 				$fileinfo = pathinfo('Payload/' . $appName . "/embedded.mobileprovision");
 				copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", $target_dir.$fileinfo['basename']);
 				exec("openssl smime -inform der -verify -noverify -in ".$target_dir."embedded.mobileprovision > ".$target_dir."parsed.mobileprovision");
+				//$infoPlist = plist::Parse($target_dir.'Info.plist');
 				$embedded = plist::Parse($target_dir.'parsed.mobileprovision');
 				$content = file_get_contents($target_dir.'Info.plist');
 				$plist = new CFPropertyList\CFPropertyList();
-				$plist->parseBinary($content);
-				$infoPlist = $plist->toArray();
+				$plist->parse($content);
+				$infoPlist = $plist->toArray(); 
 				
 				if(isset($_POST["infoCheck"]))
 				{
-					echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
+					$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><h4><b>Info.plist Information:</b></h4><br>\r\n Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"] . "<br>\r\n CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"] . "<br>\r\n CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"]. "<br>\r\n CF Bundle Executable: " . $infoPlist["CFBundleExecutable"]. "<br>\r\n CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"]."<br>\r\n CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"]."<br>\r\n CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"]."<br>\r\n Minimum OS Version: " . $infoPlist["MinimumOSVersion"]."<br></p>\r\n");
+					/* echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
 					echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
 					echo "<br>";
 					echo "CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"];
@@ -287,12 +316,13 @@
 					echo "CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"];
 					echo "<br>";
 					echo "Minimum OS Version: " . $infoPlist["MinimumOSVersion"];
-					echo "<br>";
+					echo "<br>"; */
 				}
 				
 				if(isset($_POST["embeddedCheck"]))
 				{
-					echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
+					$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><br><h4><b>Embedded.mobileprovision Information:</b></h4><br>\r\n App ID Name: " . $embedded["AppIDName"]."<br>\r\n Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0]."<br>\r\n Creation Date: " . $embedded["CreationDate"]."<br>\r\n Platform: " . $embedded["Platform"][0]."<br>\r\n Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0]."<br>\r\n <b>Entitlements:</b> <br>\r\n Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0]."<br>\r\n Application-Identifier: " . $embedded["Entitlements"]["application-identifier"]."<br>\r\n com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"]."<br>\r\n APS-Environment: " . $embedded["Entitlements"]["aps-environment"]."<br>\r\n Expiration Date: " . $embedded["ExpirationDate"]."<br>\r\n Name: " . $embedded["Name"]."<br>\r\n Team Name: " . $embedded["TeamName"]."<br>\r\n Time To Live: " . $embedded["TimeToLive"]."<br>\r\n UUID: " . $embedded["UUID"]."<br>\r\n Version: " . $embedded["Version"]."<br></p>\r\n");
+					/* echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
 					echo "App ID Name: " . $embedded["AppIDName"];
 					echo "<br>";
 					echo "Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0];
@@ -323,7 +353,7 @@
 					echo "UUID: " . $embedded["UUID"];
 					echo "<br>";
 					echo "Version: " . $embedded["Version"];
-					echo "<br></p>";
+					echo "<br></p>"; */
 				}
 				
 				
@@ -389,15 +419,15 @@
 		diff();
 		function file1(){
 		var bool = <?php echo json_encode($stringBean, JSON_HEX_TAG)?>; 
-		document.getElementById("hi").innerHTML = bool;
+		document.getElementById("displayInfo").innerHTML = bool;
 		}
 		function file2(){
 		var bool = <?php echo json_encode($stringBean1, JSON_HEX_TAG)?>; 
-		document.getElementById("hi").innerHTML = bool;
+		document.getElementById("displayInfo").innerHTML = bool;
 		}
 		function diff(){
 		var bool = <?php echo json_encode($fileDiff, JSON_HEX_TAG)?>; 
-		document.getElementById("hi").innerHTML = bool;
+		document.getElementById("displayInfo").innerHTML = bool;
 		}
 	
 	</script>
