@@ -12,6 +12,13 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/style.css">
+	<style type="text/css">
+        .btn-primary {
+            height: 50px;
+			width: 182px;
+        }     
+
+    </style>
 </head>
 
     
@@ -290,13 +297,13 @@
     } */
 		
     ?>
-        <div>
+        <div id = "hi">
 			<form action="logUploaded.php" method="post" enctype="multipart/form-data">
-                        <button>Make current log</button>	
+                         <button class="btn btn-primary" >Make current log</button>	
             </form>
-            <p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
+            
         </div>
-
+		<p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
     </main>
     <!-- /.container -->
     

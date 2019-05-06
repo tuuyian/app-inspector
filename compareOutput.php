@@ -15,8 +15,11 @@
 	<style type="text/css">
         .btn-primary {
             height: 50px;
+			
         }     
-
+		#displayInfo {
+            text-align: left;
+        }  
     </style>
 </head>
 
@@ -45,7 +48,7 @@
     margin-left: 20px;">
 	<button class="btn btn-primary" onclick="file1()">File 1 Info</button>
     <button class="btn btn-primary" onclick="file2()">File 2 Info</button>
-	<button class="btn btn-primary" onclick="diff()">Diff</button>
+	<button class="btn btn-primary" onclick="diff()">Diff</button><br><br>
 	<div id = "displayInfo"></div>
 <?php
 	include 'openFile.php';
