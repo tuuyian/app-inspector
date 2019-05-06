@@ -29,7 +29,7 @@
                     <a class="nav-link" href="index.php">Home<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php">Compare</a>
+                    <a class="nav-link" href="compare.php">Compare</a>
                 </li>
             </ul>
         </div>
@@ -38,6 +38,12 @@
      <main role="main" class="container" style="
     margin-left: 20px;">
 <?php
+
+	function fileUpload($filetoupload)
+	{
+		
+	}
+	include 'openFile.php';
     require_once __DIR__ . '/vendor/autoload.php';
     mkdir("uploads/". basename( $_FILES["fileToUpload"]["name"]), 0770, true);
 	//Setting Variables for file upload
@@ -48,7 +54,7 @@
     $appFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 	$filename =  "usablename." . $appFileType;
     $zip = new ZipArchive;
-
+	$fileOutput = "";
 
     // Check if file already exists in the folder
     if (file_exists($target_file)) {
@@ -97,14 +103,16 @@
 				$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
 				copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", $target_dir .$fileinfo['basename']);
 			}
-
+	
 			//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
             if (isset($_POST["sslCheck"]))
             {
-                echo "<br><h4>SSL Pinning:</h4>";
+                //echo "<br><h4>SSL Pinning:</h4>";
+				$fileOutput = printInfo($fileOutput, "<br><h4>SSL Pinning:</h4> \r\n");
                 if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
                 {
-                    echo "<p class = 'lead'>Pinned using OkHttp3</p>";
+                    //echo "<p class = 'lead'>Pinned using OkHttp3</p>";
+					$fileOutput = printInfo($fileOutput, "<p class = 'lead'>Pinned using OkHttp3</p> \r\n");
                 }
                 else
                 {
@@ -112,11 +120,13 @@
                     copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
                     if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
                     {
-                        echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
+                        //echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
+						$fileOutput = printInfo($fileOutput, "<p class = 'lead'>Pinned using HttpsURLConnection</p> \r\n");
                     }
                     else
                     {
-                        echo "<p class = 'lead'>No SSL Pinning</p>";
+                        //echo "<p class = 'lead'>No SSL Pinning</p>";
+						$fileOutput = printInfo($fileOutput, "<p class = 'lead'>No SSL Pinning</p> \r\n");
                     }
 			    } 
             }
@@ -147,7 +157,8 @@
         if(isset($_POST["manifestCheck"]))
         {
             exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
-            echo "<h4>Android Manifest Details:</h4>";
+            //echo "<h4>Android Manifest Details:</h4>";
+			$fileOutput = printInfo($fileOutput, "<h4>Android Manifest Details:</h4> \r\n");
             error_reporting(E_ERROR | E_PARSE);
             $dom = new DOMDocument();
             $dom->load($target_dir . 'ParsedAndroidManifest.xml');
@@ -155,9 +166,12 @@
             $versionName = $xml->xpath('/manifest/@android:versionName');
             $versionCode =$xml->xpath('/manifest/@android:versionCode');
             $package = $xml->xpath('/manifest/@package');
-            echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
-            echo "Version Code :".$versionCode[0]->versionCode."<br/>";
-            echo "Package Name :".$package[0]->package."<br/></p>";
+            //echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
+			$fileOutput = printInfo($fileOutput, "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/> \r\n");
+            //echo "Version Code :".$versionCode[0]->versionCode."<br/>";
+			$fileOutput = printInfo($fileOutput, "Version Code :".$versionCode[0]->versionCode."<br/> \r\n");
+            //echo "Package Name :".$package[0]->package."<br/></p>";
+			$fileOutput = printInfo($fileOutput, "Package Name :".$package[0]->package."<br/></p> \r\n");
         }
 		
 
@@ -165,18 +179,21 @@
         if(isset($_POST["certificateCheck"]))
         {
             exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
-            echo "<br><h4>Certificates:</h4>";
+            //echo "<br><h4>Certificates:</h4>";
+			$fileOutput = printInfo($fileOutput, "<br><h4>Certificates:</h4> \r\n");
             echo "<p class = 'lead'";
-            echo implode("<br>" , $certs); 
+            //echo implode("<br>" , $certs); 
+			$fileOutput = printInfo($fileOutput, implode ("<br>\r\n", $certs));
         }
         
         if(isset($_POST["logoCheck"]))
         {
             echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
         }
-       
+		
+		
     }
-
+	
     else if($appFileType == "ipa")
     {
 		//Unzipping IPA, trying to find the location of the info.plist and mobileprovision. Have to find the specfic app name within the Payload folder.
@@ -287,6 +304,8 @@
 
     }
 
+		$filename = 'apkLog.txt';
+		$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
     /* Timed delete script to be implemented.
 
 	if(count(glob("uploads/*"))!=0)
@@ -312,10 +331,14 @@
             }
         }
     } */
-
+		
     ?>
-        <div>            
-            <p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
+        <div>
+			<form action="logUploaded.php" method="post" enctype="multipart/form-data">
+                        <button>Move Log</button>
+						<p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
+            </form>
+            
         </div>
 
     </main>

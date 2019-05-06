@@ -1,6 +1,7 @@
 {
     "require": {
         "callumacrae/plist": "^1.1",
-        "rodneyrehm/plist": "^2.0"
+        "rodneyrehm/plist": "^2.0",
+        "sebastian/diff": "^1.4"
     }
 }
