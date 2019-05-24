@@ -113,8 +113,7 @@
 				if (isset($_POST["sslCheck"]))
 				{
 					//echo "<br><h4>SSL Pinning:</h4>";
-					$fileOutput = appendInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br> \r\n");
-					$fileOutput = appendInfo($fileOutput,"<p class = 'lead' style='margin:0;display:inline'>\r\n");
+					$fileOutput = appendInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br><br>\r\n");
 					if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
 					{
 						//echo "<p class = 'lead'>Pinned using OkHttp3</p>";

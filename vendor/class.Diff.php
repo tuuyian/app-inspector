@@ -221,9 +221,9 @@ class Diff{
 
       // extend the string with the line
       switch ($line[1]){
-        case self::UNMODIFIED : $string .= '  ' . $line[0];break;
-        case self::DELETED    : $string .= '- ' . $line[0];break;
-        case self::INSERTED   : $string .= '+ ' . $line[0];break;
+        case self::UNMODIFIED : $string .= '<span style="background-color: #FFFFFF">' . $line[0];break;
+        case self::DELETED    : $string .= '<span style="background-color: #6bdfb8">File 1: ' . $line[0];break;
+        case self::INSERTED   : $string .= '<span style="background-color: #ff8983">File 2: ' . $line[0];break;
       }
 
       // extend the string with the separator
