@@ -73,7 +73,7 @@
 		
 		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, "logs/temp/". $textFile2));
 		$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
-		//echo implode ("<br>", );
+
 	}
 	if (isset($_POST["compareWithLog"]))
 	{
@@ -104,6 +104,7 @@
 		
 		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, $submittedLog));
 		$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
+		
 	}
 	function fileUpload($fileToUpload, $tempname)
 	{	

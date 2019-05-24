@@ -47,7 +47,7 @@
 	{
 		rename("logs/temp/ipaLog.txt", "logs/submittedIPALog.txt");
 	}
-
+	echo "<script>alert('Log Uploaded!'); window.location = './index.php';</script>";
     ?>
         <div>   
 			<p class = "lead">Log has been uploaded!</a></p>

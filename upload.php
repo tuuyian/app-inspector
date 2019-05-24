@@ -46,10 +46,6 @@
     margin-left: 20px;">
 <?php
 
-	function fileUpload($filetoupload)
-	{
-		
-	}
 	include 'openFile.php';
     require_once __DIR__ . '/vendor/autoload.php';
     mkdir("uploads/". basename( $_FILES["fileToUpload"]["name"]), 0770, true);
@@ -89,7 +85,7 @@
 
     if($appFileType == "apk")
 		{
-			$fileOutput = printInfo($fileOutput, "<h4 style='margin:0;display:inline'>Filename: " . basename( $_FILES["fileToUpload"]["name"]) ."</h4><br><br> \r\n");
+			$fileOutput = appendInfo($fileOutput, "<h4 style='margin:0;display:inline'>Filename: " . basename( $_FILES["fileToUpload"]["name"]) ."</h4><br><br> \r\n");
 			
 			//Opening the APK file using ZipArchive
 			$path = $target_dir . $filename;
@@ -117,12 +113,12 @@
 				if (isset($_POST["sslCheck"]))
 				{
 					//echo "<br><h4>SSL Pinning:</h4>";
-					$fileOutput = printInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br> \r\n");
-					$fileOutput = printInfo($fileOutput,"<p class = 'lead' style='margin:0;display:inline'>\r\n");
+					$fileOutput = appendInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br> \r\n");
+					$fileOutput = appendInfo($fileOutput,"<p class = 'lead' style='margin:0;display:inline'>\r\n");
 					if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
 					{
 						//echo "<p class = 'lead'>Pinned using OkHttp3</p>";
-						$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using OkHttp3</p><br> \r\n");
+						$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using OkHttp3</p><br> \r\n");
 					}
 					else
 					{
@@ -131,12 +127,12 @@
 						if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
 						{
 							//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
-							$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
+							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
 						}
 						else
 						{
 							//echo "<p class = 'lead'>No SSL Pinning</p>";
-							$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
+							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
 						}
 					} 
 				}
@@ -168,7 +164,7 @@
 			{
 				exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
 				//echo "<h4>Android Manifest Details:</h4>";
-				$fileOutput = printInfo($fileOutput, "</p><h4>Android Manifest Details:</h4><br> \r\n");
+				$fileOutput = appendInfo($fileOutput, "</p><h4>Android Manifest Details:</h4><br> \r\n");
 				error_reporting(E_ERROR | E_PARSE);
 				$dom = new DOMDocument();
 				$dom->load($target_dir . 'ParsedAndroidManifest.xml');
@@ -177,11 +173,11 @@
 				$versionCode =$xml->xpath('/manifest/@android:versionCode');
 				$package = $xml->xpath('/manifest/@package');
 				//echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
-				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Name :".$versionName[0]->versionName."</p><br/> \r\n");
+				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Name :".$versionName[0]->versionName."</p><br/> \r\n");
 				//echo "Version Code :".$versionCode[0]->versionCode."<br/>";
-				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Code :".$versionCode[0]->versionCode."</p><br/> \r\n");
+				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Code :".$versionCode[0]->versionCode."</p><br/> \r\n");
 				//echo "Package Name :".$package[0]->package."<br/></p>";
-				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Package Name :".$package[0]->package."</p><br> \r\n");
+				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Package Name :".$package[0]->package."</p><br> \r\n");
 			}
 			
 
@@ -190,19 +186,28 @@
 			{
 				exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
 				//echo "<br><h4>Certificates:</h4>";
-				$fileOutput = printInfo($fileOutput, "<br><h4>Certificates:</h4> \r\n");
-				$fileOutput = printInfo($fileOutput, "<p class = 'lead'>");
+				$fileOutput = appendInfo($fileOutput, "<br><h4>Certificates:</h4> \r\n");
+				$fileOutput = appendInfo($fileOutput, "<p class = 'lead'>");
 				//echo implode("<br>" , $certs); 
-				$fileOutput = printInfo($fileOutput, implode ("<br>\r\n", $certs));
+				$fileOutput = appendInfo($fileOutput, implode ("<br>\r\n", $certs));
 			}
+			
+			$filename = 'apkLog.txt';
+			$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
+			
+			$myfile1 = fopen("logs/temp/". $filename, "r") or die("Unable to open file!");
+			$stringBean1 = fread($myfile1,filesize("logs/temp/". $filename));
+			fclose($myfile1);
+		
+			echo $stringBean1;
+			
+				
 			
 			if(isset($_POST["logoCheck"]))
 			{
 				echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
 			}
 			
-			$filename = 'apkLog.txt';
-			$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
 		}
 	
     else if($appFileType == "ipa")
@@ -246,18 +251,25 @@
 			
             if(isset($_POST["infoCheck"]))
             {
-				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><h4><b>Info.plist Information:</b></h4><br>\r\n Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"] . "<br>\r\n CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"] . "<br>\r\n CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"]. "<br>\r\n CF Bundle Executable: " . $infoPlist["CFBundleExecutable"]. "<br>\r\n CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"]."<br>\r\n CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"]."<br>\r\n CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"]."<br>\r\n Minimum OS Version: " . $infoPlist["MinimumOSVersion"]."<br></p>\r\n");
+				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><h4><b>Info.plist Information:</b></h4><br>\r\n Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"] . "<br>\r\n CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"] . "<br>\r\n CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"]. "<br>\r\n CF Bundle Executable: " . $infoPlist["CFBundleExecutable"]. "<br>\r\n CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"]."<br>\r\n CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"]."<br>\r\n CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"]."<br>\r\n Minimum OS Version: " . $infoPlist["MinimumOSVersion"]."<br></p>\r\n");
             }
             
             if(isset($_POST["embeddedCheck"]))
             {
-				$fileOutput = printInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><br><h4><b>Embedded.mobileprovision Information:</b></h4><br>\r\n App ID Name: " . $embedded["AppIDName"]."<br>\r\n Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0]."<br>\r\n Creation Date: " . $embedded["CreationDate"]."<br>\r\n Platform: " . $embedded["Platform"][0]."<br>\r\n Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0]."<br>\r\n <b>Entitlements:</b> <br>\r\n Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0]."<br>\r\n Application-Identifier: " . $embedded["Entitlements"]["application-identifier"]."<br>\r\n com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"]."<br>\r\n APS-Environment: " . $embedded["Entitlements"]["aps-environment"]."<br>\r\n Expiration Date: " . $embedded["ExpirationDate"]."<br>\r\n Name: " . $embedded["Name"]."<br>\r\n Team Name: " . $embedded["TeamName"]."<br>\r\n Time To Live: " . $embedded["TimeToLive"]."<br>\r\n UUID: " . $embedded["UUID"]."<br>\r\n Version: " . $embedded["Version"]."<br></p>\r\n");
+				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><br><h4><b>Embedded.mobileprovision Information:</b></h4><br>\r\n App ID Name: " . $embedded["AppIDName"]."<br>\r\n Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0]."<br>\r\n Creation Date: " . $embedded["CreationDate"]."<br>\r\n Platform: " . $embedded["Platform"][0]."<br>\r\n Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0]."<br>\r\n <b>Entitlements:</b> <br>\r\n Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0]."<br>\r\n Application-Identifier: " . $embedded["Entitlements"]["application-identifier"]."<br>\r\n com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"]."<br>\r\n APS-Environment: " . $embedded["Entitlements"]["aps-environment"]."<br>\r\n Expiration Date: " . $embedded["ExpirationDate"]."<br>\r\n Name: " . $embedded["Name"]."<br>\r\n Team Name: " . $embedded["TeamName"]."<br>\r\n Time To Live: " . $embedded["TimeToLive"]."<br>\r\n UUID: " . $embedded["UUID"]."<br>\r\n Version: " . $embedded["Version"]."<br></p>\r\n");
             }
             
             
             
             $filename = 'ipaLog.txt';
 			$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
+			
+			$myfile1 = fopen("logs/temp/". $filename, "r") or die("Unable to open file!");
+			$stringBean1 = fread($myfile1,filesize("logs/temp/". $filename));
+			fclose($myfile1);
+			
+			echo $stringBean1;
+			
 		}
 		else
 		{
@@ -298,12 +310,13 @@
 		
     ?>
         <div id = "hi">
+		<br>
 			<form action="logUploaded.php" method="post" enctype="multipart/form-data">
                          <button class="btn btn-primary" >Make current log</button>	
             </form>
-            
+            <p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
         </div>
-		<p class = "lead"><a href = "index.php">Return to Home Page</a></p>   
+		
     </main>
     <!-- /.container -->
     
