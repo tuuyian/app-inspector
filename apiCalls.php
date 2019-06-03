@@ -37,7 +37,6 @@
 		$firstUpload = basename($_FILES["fileToUpload"]["name"]);
 		$textFile1 = fileUpload($firstUpload, $tmpName);
 		$appFileType = strtolower(pathinfo($firstUpload,PATHINFO_EXTENSION));
-		 $appFileType;
 		$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
 		$stringBean = fread($myfile,filesize("logs/temp/". $textFile1));
 		fclose($myfile);
@@ -71,6 +70,20 @@
 			echo "\n" . $a;
 		}
 	}
+	
+	if(isset($_POST["uploadOnly"]))
+	{
+			$tmpName = $_FILES["fileToUpload"]["tmp_name"];
+			$firstUpload = basename($_FILES["fileToUpload"]["name"]);
+			$uploadedFile = fileUpload($firstUpload, $tmpName);
+			$myfile1 = fopen("logs/temp/". $uploadedFile, "r") or die("Unable to open file!");
+			$cmdOutput = fread($myfile1,filesize("logs/temp/". $uploadedFile));
+			fclose($myfile1);
+			
+			$cmdOutput = strip_tags($cmdOutput);
+			echo $cmdOutput;
+	}
+	
 	function fileUpload($fileToUpload, $tempname)
 	{	
 		mkdir("uploads/". $fileToUpload, 0770, true);
@@ -220,6 +233,12 @@
 				echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
 			}
 			
+			if(isset($_POST["uploadOnly"]))
+			{
+				$filename = 'apkLog.txt';
+				$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
+				return $filename;
+			}	
 			
 		}
 		
@@ -318,10 +337,6 @@
 				echo "<br>";
 				echo "Version: " . $embedded["Version"];
 				echo "<br></p>"; */
-			
-			
-			
-			
 				
 			}
 			else
@@ -331,36 +346,18 @@
 			/*TODO: Parsing the info.plist and embedded.mobileprovision. Also to find where to pull the logo.
 			  NOTE: exec(openssl smime -inform der -verify -noverify -in embedded.mobileprovision) > to parse mobileprovision
 			*/
-
-		}
-
-			$filename = $fileToUpload . ".txt";
-			$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
-		/* Timed delete script to be implemented.
-
-		if(count(glob("uploads/*"))!=0)
-		{
-			if (time() - filectime('uploads/'.$filename) > 5)
+			
+			if(isset($_POST["uploadOnly"]))
 			{
-				$src = 'uploads';
-				$dir = opendir($src);
-				while(false !== ( $file = readdir($dir)) )
-				{
-					if (( $file != '.' ) && ( $file != '..' ))
-					{
-						$full = $src . '/' . $file;
-						if ( is_dir($full) )
-						{
-							rmdir($full);
-						}
-						else
-						{
-							unlink($full);
-						}
-					}
-				}
-			}
-		} */
+				$filename = 'ipaLog.txt';
+				$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
+				return $filename;
+			}	
+		}
+		
+		$filename = $fileToUpload . ".txt";
+		$handle = file_put_contents("logs/temp/" . $filename,$fileOutput);
+			
 		return $filename;
 	}
 	

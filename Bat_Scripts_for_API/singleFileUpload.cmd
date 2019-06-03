@@ -1,7 +1,7 @@
 @echo off
 SET /p _string=Drag and Drop APK/IPA:
 Set _string=%_string:"=%
-curl -F "fileToUpload=@%_string%" -F "manifestCheck='checked'" -F "certificateCheck='checked'" -F "sslCheck='checked'"  localhost/gitAppinspector/uploadCMD.php
+curl -F "fileToUpload=@%_string%" -F "uploadOnly='checked'" http://localhost/gitAppinspector/apiCalls.php
 
 :choice
 set /P c=Do you want to upload a log [Y/N]?
