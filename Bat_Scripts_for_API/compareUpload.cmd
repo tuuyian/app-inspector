@@ -13,14 +13,14 @@ goto :choice
 SET /p _string1=Drag and Drop APK/IPA:
 Set _string1=%_string1:"=%
 
-curl -F "fileToUpload=@%_string%" -F "fileToUpload1=@%_string1%" -F "compareTwoFiles='checked'" -F "CMD='checked'" http://localhost/gitAppinspector/apiCalls.php
+curl -F "fileToUpload=@%_string%" -F "fileToUpload1=@%_string1%" -F "compareTwoFiles='checked'" -F "CMD='checked'" http://localhost/App-inspector/apiCalls.php
 pause
-curl http://localhost/gitAppinspector/clearDirectory.php
+curl http://localhost/app-inspector/clearDirectory.php
 exit
 
 :compare_log
 
-curl -F "fileToUpload=@%_string%" -F "compareWithLog='checked'" -F "CMD='checked'" http://localhost/gitAppinspector/apiCalls.php
+curl -F "fileToUpload=@%_string%" -F "compareWithLog='checked'" -F "CMD='checked'" http://localhost/App-inspector/apiCalls.php
 pause
-curl http://localhost/gitAppinspector/clearDirectory.php
+curl http://localhost/app-inspector/clearDirectory.php
 exit
