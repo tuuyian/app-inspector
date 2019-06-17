@@ -1,7 +1,20 @@
 <?php
 function fileUpload($fileToUpload, $tempname)
 	{	
-		mkdir("uploads/". $fileToUpload, 0770, true);
+		//Sets a flag for known warning errors for file handling
+		set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context)
+		{
+			throw new ErrorException( $err_msg, 0, $err_severity, $err_file, $err_line );
+		}, E_WARNING);
+		try
+		{
+			$fileToUpload = str_replace(' ', '', $fileToUpload);
+			mkdir("uploads/". $fileToUpload, 0770, true);
+		}
+		catch (Exception $e)
+		{
+			
+		}
 		//Setting Variables for file upload
 		$target_dir = "uploads/". $fileToUpload . "/";
 		$target_file = $target_dir . $fileToUpload;
@@ -36,20 +49,22 @@ function fileUpload($fileToUpload, $tempname)
 				echo "<p class = 'lead'>Sorry, there was an error uploading your file.</p>";
 			}
 		}
+		//Check if file is a fake file type by checking the mime type
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$fileChecker = finfo_file($finfo, $target_dir . $filename);
 		finfo_close($finfo);
 		if($fileChecker != "application/java-archive" && $fileChecker != "application/zip")
 		{
-			echo "<script>alert('File1 is not an APK or IPA!'); window.location = './index.php';</script>";
+			echo "<script>alert('File is not an APK or IPA!'); window.location = './index.php';</script>";
 		}
-		set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context)
-		{
-			throw new ErrorException( $err_msg, 0, $err_severity, $err_file, $err_line );
-		}, E_WARNING);
 		//Pull specific information based on type of file
 		if($appFileType == "apk")
 		{
+			//Checks if the file is uploaded through the right channel (APK)
+			if (!isset($_POST["amAPK"]))
+			{
+				echo "<script>alert('Incorrect file uploaded!'); window.location = './index.php';</script>";
+			}
 			$fileOutput = appendInfo($fileOutput, "<h4 style='margin:0;display:inline'>Filename: " . $fileToUpload ."</h4><br><br> \r\n");
 			
 			//Opening the APK file using ZipArchive
@@ -57,7 +72,7 @@ function fileUpload($fileToUpload, $tempname)
 			
 			if ($zip->open($path))
 			{
-				//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder
+				//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder, try catch in place to handle missing files
 				try{
 					if ($zip->getFromName('res/drawable/icon.png')!== false)
 					{
@@ -79,7 +94,7 @@ function fileUpload($fileToUpload, $tempname)
 				{
 					
 				}
-				restore_error_handler();
+				
 				//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
 				if (isset($_POST["sslCheck"]))
 				{
@@ -107,8 +122,10 @@ function fileUpload($fileToUpload, $tempname)
 					} 
 				}
 				
-				
+				//Try catch surrounding any zip interactions to handle missing files
 				//Extract Certificates to be read
+				try
+				{
 				if ($zip->getFromName('META-INF/CERT.RSA')!== false)
 				{
 
@@ -122,15 +139,15 @@ function fileUpload($fileToUpload, $tempname)
 				}
 				//Extract the Android Manifest from the APK and place it in the uploads folder to be read
 				$fileinfo = pathinfo('AndroidManifest.xml');
-				try
-				{
+				
+				
 					copy("zip://".realpath($path)."#AndroidManifest.xml", $target_dir .$fileinfo['basename']);
 				}
 				catch (Exception $e)
 				{
 					echo "<script>alert('File is not an APK or IPA!'); window.location = './index.php';</script>";
 				}
-				
+				restore_error_handler();
 				$zip->close();
 			}
 			else
@@ -191,6 +208,11 @@ function fileUpload($fileToUpload, $tempname)
 		
 		else if($appFileType == "ipa")
 		{
+			//Checks if the file is uploaded through the right channel (IPA)
+			if (!isset($_POST["amIPA"]))
+			{
+				echo "<script>alert('Incorrect file uploaded!'); window.location = './index.php';</script>";
+			}
 			//Unzipping IPA, trying to find the location of the info.plist and mobileprovision. Have to find the specfic app name within the Payload folder.
 			$path = $target_dir . $filename;
 			$zip = zip_open($path);
