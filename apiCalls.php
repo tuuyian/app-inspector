@@ -190,12 +190,10 @@
 				
 				//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
 				
-				//echo "<br><h4>SSL Pinning:</h4>";
 				$fileOutput = appendInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br> \r\n");
 				$fileOutput = appendInfo($fileOutput,"<p class = 'lead' style='margin:0;display:inline'>\r\n");
 				if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
 				{
-					//echo "<p class = 'lead'>Pinned using OkHttp3</p>";
 					$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using OkHttp3</p><br> \r\n");
 				}
 				else
@@ -206,12 +204,10 @@
 						copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
 						if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
 						{
-							//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
 							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
 						}
 						else
 						{
-							//echo "<p class = 'lead'>No SSL Pinning</p>";
 								$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
 						}
 					}
@@ -263,7 +259,6 @@
 			//Using AXMLPrinter2 to parse the androidmanifest, making it readable and easy to pull information.
 			
 			exec("java -jar axmlprinter2.jar " . $target_dir . "AndroidManifest.xml > ". $target_dir ."ParsedAndroidManifest.xml");
-			//echo "<h4>Android Manifest Details:</h4>";
 			$fileOutput = appendInfo($fileOutput, "</p><h4>Android Manifest Details:</h4><br> \r\n");
 			error_reporting(E_ERROR | E_PARSE);
 			$dom = new DOMDocument();
@@ -272,11 +267,8 @@
 			$versionName = $xml->xpath('/manifest/@android:versionName');
 			$versionCode =$xml->xpath('/manifest/@android:versionCode');
 			$package = $xml->xpath('/manifest/@package');
-			//echo "<p class = 'lead'><br>Version Name :".$versionName[0]->versionName."<br/>";
 			$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Name :".$versionName[0]->versionName."</p><br/> \r\n");
-			//echo "Version Code :".$versionCode[0]->versionCode."<br/>";
 			$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Version Code :".$versionCode[0]->versionCode."</p><br/> \r\n");
-			//echo "Package Name :".$package[0]->package."<br/></p>";
 			$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Package Name :".$package[0]->package."</p><br> \r\n");
 			
 			
@@ -284,10 +276,8 @@
 			//Print out Certficate information
 			
 			exec("keytool -printcert -file ". $target_dir ."CERT.RSA", $certs);
-			//echo "<br><h4>Certificates:</h4>";
 			$fileOutput = appendInfo($fileOutput, "<br><h4>Certificates:</h4> \r\n");
 			$fileOutput = appendInfo($fileOutput, "<p class = 'lead'>");
-			//echo implode("<br>" , $certs); 
 			$fileOutput = appendInfo($fileOutput, implode ("<br>\r\n", $certs));
 			
 			if(isset($_POST["uploadOnly"]))
@@ -332,7 +322,6 @@
 				$fileinfo = pathinfo('Payload/' . $appName . "/embedded.mobileprovision");
 				copy("zip://".realpath($path)."#Payload/" . $appName . "/embedded.mobileprovision", $target_dir.$fileinfo['basename']);
 				exec("openssl smime -inform der -verify -noverify -in ".$target_dir."embedded.mobileprovision > ".$target_dir."parsed.mobileprovision");
-				//$infoPlist = plist::Parse($target_dir.'Info.plist');
 				$embedded = plist::Parse($target_dir.'parsed.mobileprovision');
 				$content = file_get_contents($target_dir.'Info.plist');
 				$plist = new CFPropertyList\CFPropertyList();
@@ -341,68 +330,17 @@
 				
 				
 				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><h4><b>Info.plist Information:</b></h4><br>\r\n Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"] . "<br>\r\n CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"] . "<br>\r\n CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"]. "<br>\r\n CF Bundle Executable: " . $infoPlist["CFBundleExecutable"]. "<br>\r\n CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"]."<br>\r\n CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"]."<br>\r\n CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"]."<br>\r\n Minimum OS Version: " . $infoPlist["MinimumOSVersion"]."<br></p>\r\n");
-				/* echo "<p class = 'lead'><h4><b>Info.plist Information:</b></h4>";
-				echo "Build Machine OS Build: " . $infoPlist["BuildMachineOSBuild"];
-				echo "<br>";
-				echo "CF Bundle Development Region: " . $infoPlist["CFBundleDevelopmentRegion"];
-				echo "<br>";
-				echo "CF Bundle Display Name: " . $infoPlist["CFBundleDisplayName"];
-				echo "<br>";
-				echo "CF Bundle Executable: " . $infoPlist["CFBundleExecutable"];
-				echo "<br>";
-				echo "CF Bundle Identifier: " . $infoPlist["CFBundleIdentifier"];
-				echo "<br>";
-				echo "CF Bundle Info Dictionary Version: " . $infoPlist["CFBundleInfoDictionaryVersion"];
-				echo "<br>";
-				echo "CF Bundle Short Version String: " . $infoPlist["CFBundleShortVersionString"];
-				echo "<br>";
-				echo "Minimum OS Version: " . $infoPlist["MinimumOSVersion"];
-				echo "<br>"; */
+
 			
 			
 			
 				$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'><br><h4><b>Embedded.mobileprovision Information:</b></h4><br>\r\n App ID Name: " . $embedded["AppIDName"]."<br>\r\n Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0]."<br>\r\n Creation Date: " . $embedded["CreationDate"]."<br>\r\n Platform: " . $embedded["Platform"][0]."<br>\r\n Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0]."<br>\r\n <b>Entitlements:</b> <br>\r\n Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0]."<br>\r\n Application-Identifier: " . $embedded["Entitlements"]["application-identifier"]."<br>\r\n com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"]."<br>\r\n APS-Environment: " . $embedded["Entitlements"]["aps-environment"]."<br>\r\n Expiration Date: " . $embedded["ExpirationDate"]."<br>\r\n Name: " . $embedded["Name"]."<br>\r\n Team Name: " . $embedded["TeamName"]."<br>\r\n Time To Live: " . $embedded["TimeToLive"]."<br>\r\n UUID: " . $embedded["UUID"]."<br>\r\n Version: " . $embedded["Version"]."<br></p>\r\n");
-				/* echo "<br><h4><b>Embedded.mobileprovision Information:</b></h4>";
-				echo "App ID Name: " . $embedded["AppIDName"];
-				echo "<br>";
-				echo "Application Identifier Prefix: " . $embedded["ApplicationIdentifierPrefix"][0];
-				echo "<br>";
-				echo "Creation Date: " . $embedded["CreationDate"];
-				echo "<br>";
-				echo "Platform: " . $embedded["Platform"][0];
-				echo "<br>";
-				echo "Developer Certificates: " . (string)$embedded["DeveloperCertificates"][0];
-				echo "<br>";
-				echo "<b>Entitlements:</b> <br>";
-				echo "Keychain-Access-Groups: " . $embedded["Entitlements"]["keychain-access-groups"][0];
-				echo "<br>";
-				echo "Application-Identifier: " . $embedded["Entitlements"]["application-identifier"];
-				echo "<br>";
-				echo "com.apple.developer.Team-Identifier: " . $embedded["Entitlements"]["com.apple.developer.team-identifier"];
-				echo "<br>";
-				echo "APS-Environment: " . $embedded["Entitlements"]["aps-environment"];
-				echo "<br>";
-				echo "Expiration Date: " . $embedded["ExpirationDate"];
-				echo "<br>";
-				echo "Name: " . $embedded["Name"];
-				echo "<br>";
-				echo "Team Name: " . $embedded["TeamName"];
-				echo "<br>";
-				echo "Time To Live: " . $embedded["TimeToLive"];
-				echo "<br>";
-				echo "UUID: " . $embedded["UUID"];
-				echo "<br>";
-				echo "Version: " . $embedded["Version"];
-				echo "<br></p>"; */
 				
 			}
 			else
 			{
 				echo "<p class = 'lead'>Cannot Read IPA</p>";
 			}
-			/*TODO: Parsing the info.plist and embedded.mobileprovision. Also to find where to pull the logo.
-			  NOTE: exec(openssl smime -inform der -verify -noverify -in embedded.mobileprovision) > to parse mobileprovision
-			*/
 			
 			if(isset($_POST["uploadOnly"]))
 			{
