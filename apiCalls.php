@@ -248,7 +248,7 @@
 				
 				catch (Exception $e)
 				{
-					echo "File is not an APK or IPA!\r\n";
+					echo "Android Manifest and/or Certficate cannot be found!\r\n";
 					return false;
 				}
 				

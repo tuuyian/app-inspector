@@ -99,7 +99,7 @@ function fileUpload($fileToUpload, $tempname)
 				if (isset($_POST["sslCheck"]))
 				{
 					//echo "<br><h4>SSL Pinning:</h4>";
-					$fileOutput = appendInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br><br>\r\n");
+					$fileOutput = appendInfo($fileOutput, "<br><h4>SSL Pinning:</h4><br>\r\n");
 					if ($zip->getFromName('okhttp3/internal/publicsuffix/publicsuffixes.gz')!== false)
 					{
 						//echo "<p class = 'lead'>Pinned using OkHttp3</p>";
@@ -107,17 +107,25 @@ function fileUpload($fileToUpload, $tempname)
 					}
 					else
 					{
-						$fileinfo = pathinfo('classes.dex');
-						copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
-						if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+						try
 						{
-							//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
-							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
+							
+							$fileinfo = pathinfo('classes.dex');
+							copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
+							if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+							{
+								//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
+								$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
+							}
+							else
+							{
+								//echo "<p class = 'lead'>No SSL Pinning</p>";
+								$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
+							}
 						}
-						else
+						catch (Exception $e)
 						{
-							//echo "<p class = 'lead'>No SSL Pinning</p>";
-							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
+		
 						}
 					} 
 				}
@@ -145,7 +153,7 @@ function fileUpload($fileToUpload, $tempname)
 				}
 				catch (Exception $e)
 				{
-					echo "<script>alert('File is not an APK or IPA!'); window.location = './index.php';</script>";
+					echo "<script>alert('Android Manifest and/or Certificate cannot be found!'); window.location = './index.php';</script>";
 				}
 				restore_error_handler();
 				$zip->close();
