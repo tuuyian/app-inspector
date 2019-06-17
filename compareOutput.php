@@ -65,11 +65,11 @@
 		$textFile2 = fileUpload($secondUpload, $tmpName1);
 		
 		$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
-		$stringBean = fread($myfile,filesize("logs/temp/". $textFile1));
+		$readFirstLog = fread($myfile,filesize("logs/temp/". $textFile1));
 		fclose($myfile);
 		
 		$myfile1 = fopen("logs/temp/". $textFile2, "r") or die("Unable to open file!");
-		$stringBean1 = fread($myfile1,filesize("logs/temp/". $textFile2));
+		$readSecondLog = fread($myfile1,filesize("logs/temp/". $textFile2));
 		fclose($myfile1);
 		
 		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, "logs/temp/". $textFile2));
@@ -84,12 +84,12 @@
 		$appFileType = strtolower(pathinfo($firstUpload,PATHINFO_EXTENSION));
 		 $appFileType;
 		$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
-		$stringBean = fread($myfile,filesize("logs/temp/". $textFile1));
+		$readFirstLog = fread($myfile,filesize("logs/temp/". $textFile1));
 		fclose($myfile);
 		if ($appFileType == "apk")
 		{
 			$myfile1 = fopen("logs/submittedAPKLog.txt", "r") or die("Unable to open file!");
-			$stringBean1 = fread($myfile1,filesize("logs/submittedAPKLog.txt"));
+			$readSecondLog = fread($myfile1,filesize("logs/submittedAPKLog.txt"));
 			$submittedLog = "logs/submittedAPKLog.txt";
 			fclose($myfile1);
 		}
@@ -97,7 +97,7 @@
 		else if($appFileType == "ipa")
 		{
 			$myfile1 = fopen("logs/submittedIPALog.txt", "r") or die("Unable to open file!");
-			$stringBean1 = fread($myfile1,filesize("logs/submittedIPALog.txt"));
+			$readSecondLog = fread($myfile1,filesize("logs/submittedIPALog.txt"));
 			$submittedLog = "logs/submittedIPALog.txt";
 			fclose($myfile1);
 		}
@@ -126,11 +126,11 @@
 	<script type="text/javascript">
 		diff();
 		function file1(){
-		var bool = <?php echo json_encode($stringBean, JSON_HEX_TAG)?>; 
+		var bool = <?php echo json_encode($readFirstLog, JSON_HEX_TAG)?>;
 		document.getElementById("displayInfo").innerHTML = bool;
 		}
 		function file2(){
-		var bool = <?php echo json_encode($stringBean1, JSON_HEX_TAG)?>; 
+		var bool = <?php echo json_encode($readSecondLog, JSON_HEX_TAG)?>; 
 		document.getElementById("displayInfo").innerHTML = bool;
 		}
 		function diff(){

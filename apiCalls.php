@@ -11,24 +11,27 @@
 		$textFile1 = fileUpload($firstUpload, $tmpName);
 		$textFile2 = fileUpload($secondUpload, $tmpName1);
 		
-		$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
-		$stringBean = fread($myfile,filesize("logs/temp/". $textFile1));
-		fclose($myfile);
-		
-		$myfile1 = fopen("logs/temp/". $textFile2, "r") or die("Unable to open file!");
-		$stringBean1 = fread($myfile1,filesize("logs/temp/". $textFile2));
-		fclose($myfile1);
-		
-		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, "logs/temp/". $textFile2));
-		$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
-		
-		if (isset($_POST["CMD"]))
+		if ($textFile1 != false && $textFile2 != false)
 		{
-			$diffText = fopen("logs/temp/diff.txt", "r") or die("Unable to open file!");
-			$stringBean2 = fread($diffText,filesize("logs/temp/diff.txt"));
-			fclose($diffText);
-			$a = strip_tags($stringBean2);
-			echo "\n" . $a;
+			$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
+			$readFirstLog = fread($myfile,filesize("logs/temp/". $textFile1));
+			fclose($myfile);
+			
+			$myfile1 = fopen("logs/temp/". $textFile2, "r") or die("Unable to open file!");
+			$readSecondLog = fread($myfile1,filesize("logs/temp/". $textFile2));
+			fclose($myfile1);
+			
+			$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, "logs/temp/". $textFile2));
+			$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
+			
+			if (isset($_POST["CMD"]))
+			{
+				$diffText = fopen("logs/temp/diff.txt", "r") or die("Unable to open file!");
+				$readFirstLog2 = fread($diffText,filesize("logs/temp/diff.txt"));
+				fclose($diffText);
+				$a = strip_tags($readFirstLog2);
+				echo "\n" . $a;
+			}
 		}
 	}
 	if (isset($_POST["compareWithLog"]))
@@ -38,36 +41,38 @@
 		$textFile1 = fileUpload($firstUpload, $tmpName);
 		$appFileType = strtolower(pathinfo($firstUpload,PATHINFO_EXTENSION));
 		$myfile = fopen("logs/temp/". $textFile1, "r") or die("Unable to open file!");
-		$stringBean = fread($myfile,filesize("logs/temp/". $textFile1));
+		$readFirstLog = fread($myfile,filesize("logs/temp/". $textFile1));
 		fclose($myfile);
-		
-		if ($appFileType == "apk")
+		if ($textFile1 != false)
 		{
-			$myfile1 = fopen("logs/submittedAPKLog.txt", "r") or die("Unable to open file!");
-			$stringBean1 = fread($myfile1,filesize("logs/submittedAPKLog.txt"));
-			$submittedLog = "logs/submittedAPKLog.txt";
-			fclose($myfile1);
-		}
+			if ($appFileType == "apk")
+			{
+				$myfile1 = fopen("logs/submittedAPKLog.txt", "r") or die("Unable to open file!");
+				$readSecondLog = fread($myfile1,filesize("logs/submittedAPKLog.txt"));
+				$submittedLog = "logs/submittedAPKLog.txt";
+				fclose($myfile1);
+			}
+			
+			else if($appFileType == "ipa")
+			{
+				$myfile1 = fopen("logs/submittedIPALog.txt", "r") or die("Unable to open file!");
+				$readSecondLog = fread($myfile1,filesize("logs/submittedIPALog.txt"));
+				$submittedLog = "logs/submittedIPALog.txt";
+				fclose($myfile1);
+			}
 		
-		else if($appFileType == "ipa")
-		{
-			$myfile1 = fopen("logs/submittedIPALog.txt", "r") or die("Unable to open file!");
-			$stringBean1 = fread($myfile1,filesize("logs/submittedIPALog.txt"));
-			$submittedLog = "logs/submittedIPALog.txt";
-			fclose($myfile1);
-		}
 		
-		
-		$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, $submittedLog));
-		$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
-		
-		if (isset($_POST["CMD"]))
-		{
-			$diffText = fopen("logs/temp/diff.txt", "r") or die("Unable to open file!");
-			$stringBean2 = fread($diffText,filesize("logs/temp/diff.txt"));
-			fclose($diffText);
-			$a = strip_tags($stringBean2);
-			echo "\n" . $a;
+			$fileDiff = Diff::toString(Diff::compareFiles("logs/temp/". $textFile1, $submittedLog));
+			$handle = file_put_contents("logs/temp/diff.txt",$fileDiff);
+			
+			if (isset($_POST["CMD"]))
+			{
+				$diffText = fopen("logs/temp/diff.txt", "r") or die("Unable to open file!");
+				$readFirstLog2 = fread($diffText,filesize("logs/temp/diff.txt"));
+				fclose($diffText);
+				$a = strip_tags($readFirstLog2);
+				echo "\n" . $a;
+			}
 		}
 	}
 	
@@ -76,17 +81,34 @@
 			$tmpName = $_FILES["fileToUpload"]["tmp_name"];
 			$firstUpload = basename($_FILES["fileToUpload"]["name"]);
 			$uploadedFile = fileUpload($firstUpload, $tmpName);
-			$myfile1 = fopen("logs/temp/". $uploadedFile, "r") or die("Unable to open file!");
-			$cmdOutput = fread($myfile1,filesize("logs/temp/". $uploadedFile));
-			fclose($myfile1);
-			
-			$cmdOutput = strip_tags($cmdOutput);
-			echo $cmdOutput;
+			if ($uploadedFile != false)
+			{
+				$myfile1 = fopen("logs/temp/". $uploadedFile, "r") or die("Unable to open file!");
+				$cmdOutput = fread($myfile1,filesize("logs/temp/". $uploadedFile));
+				fclose($myfile1);
+				
+				$cmdOutput = strip_tags($cmdOutput);
+				echo $cmdOutput;
+			}
 	}
 	
 	function fileUpload($fileToUpload, $tempname)
 	{	
-		mkdir("uploads/". $fileToUpload, 0770, true);
+		//Sets a flag for known warning errors for file handling
+		set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context)
+		{
+			throw new ErrorException( $err_msg, 0, $err_severity, $err_file, $err_line );
+		}, E_WARNING);
+		try
+		{
+			//Remove spaces between file names which cause errors in shell execution
+			$fileToUpload = str_replace(' ', '', $fileToUpload);
+			mkdir("uploads/". $fileToUpload, 0770, true);
+		}
+		catch (Exception $e)
+		{
+			
+		}
 		//Setting Variables for file upload
 		$target_dir = "uploads/". $fileToUpload . "/";
 		$target_file = $target_dir . $fileToUpload;
@@ -99,27 +121,38 @@
 
 		// Check if file already exists in the folder
 		if (file_exists($target_file)) {
-			echo "<p class = 'lead'>Sorry, file already exists.</p></br>";
+			echo "File already exists.";
 			$uploadOk = 0;
 		}
 		// Allow only APK/IPA file formats
 		if($appFileType != "apk" && $appFileType != "ipa") {
-			echo "<p class = 'lead'>Sorry, only APK & IPA files are allowed.</p>";
+			echo "Only APK & IPA files are allowed.\r\n";
 			$uploadOk = 0;
 		}
 		// Check if $uploadOk is set to 0 by an error
 		if ($uploadOk == 0) {
-			echo "<p class = 'lead'>Sorry, your file was not uploaded.</p>";
+			echo "Sorry, your file was not uploaded.\r\n\r\n";
+			return "";
 		// If checks are passed then try to upload the file
 
-		} else {
+		} 
+		else 
+		{
 			if (move_uploaded_file($tmp_name, $target_dir . $filename)) {
-				//echo "<p class = 'lead'>The file ". $fileToUpload. " has been uploaded.</p>";
 			} else {
-				echo "<p class = 'lead'>Sorry, there was an error uploading your file.</p>";
+				echo "Sorry, there was an error uploading your file.";
 			}
 		}
-
+		
+		//Check if file is a fake file type by checking the mime type
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$fileChecker = finfo_file($finfo, $target_dir . $filename);
+		finfo_close($finfo);
+		if($fileChecker != "application/java-archive" && $fileChecker != "application/zip")
+		{
+			echo "File is not an APK or IPA!\r\n";
+			return false;
+		}
 
 		//Pull specific information based on type of file
 		if($appFileType == "apk")
@@ -129,23 +162,30 @@
 			//Opening the APK file using ZipArchive
 			$path = $target_dir . $filename;
 			
+			//Try catch surrounding any zip interactions to handle missing files
 			if ($zip->open($path))
 			{
-				//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder
-				if ($zip->getFromName('res/drawable/icon.png')!== false)
-				{
-					$fileinfo = pathinfo('res/drawable/icon.png');
-					copy("zip://".realpath($path)."#res/drawable/icon.png", $target_dir .$fileinfo['basename']);
+				//Trying to find the logo of an application in multiple locations and then unzip the logo to the upload folder, try catch in place to handle missing files
+				try{
+					if ($zip->getFromName('res/drawable/icon.png')!== false)
+					{
+						$fileinfo = pathinfo('res/drawable/icon.png');
+						copy("zip://".realpath($path)."#res/drawable/icon.png", $target_dir .$fileinfo['basename']);
+					}
+					else if ($zip->getFromName('res/drawable-hdpi-v4/icon.png')!== false)
+					{
+						$fileinfo = pathinfo('res/drawable-hdpi-v4/icon.png');
+						copy("zip://".realpath($path)."#res/drawable-hdpi-v4/icon.png", $target_dir .$fileinfo['basename']);
+					}
+					else
+					{
+						$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
+						copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", $target_dir .$fileinfo['basename']);
+					}
 				}
-				else if ($zip->getFromName('res/drawable-hdpi-v4/icon.png')!== false)
+				catch (Exception $e) 
 				{
-					$fileinfo = pathinfo('res/drawable-hdpi-v4/icon.png');
-					copy("zip://".realpath($path)."#res/drawable-hdpi-v4/icon.png", $target_dir .$fileinfo['basename']);
-				}
-				else
-				{
-					$fileinfo = pathinfo('res/drawable-hdpi/icon.png');
-					copy("zip://".realpath($path)."#res/drawable-hdpi/icon.png", $target_dir .$fileinfo['basename']);
+					
 				}
 				
 				//CHecking locations for SSL pinning using specifc strings as well as checking the classes for specific type of pinning
@@ -160,37 +200,60 @@
 				}
 				else
 				{
-					$fileinfo = pathinfo('classes.dex');
-					copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
-					if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+					try
 					{
-						//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
-						$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
+						$fileinfo = pathinfo('classes.dex');
+						copy("zip://".realpath($path)."#classes.dex", $target_dir .$fileinfo['basename']);
+						if(exec("dexdump " . $target_dir ."classes.dex | findstr /r \"SSLContext\" 2>&1")!== '')
+						{
+							//echo "<p class = 'lead'>Pinned using HttpsURLConnection</p>";
+							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> \r\n");
+						}
+						else
+						{
+							//echo "<p class = 'lead'>No SSL Pinning</p>";
+								$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
+						}
 					}
-					else
+					catch (Exception $e)
 					{
-						//echo "<p class = 'lead'>No SSL Pinning</p>";
-							$fileOutput = appendInfo($fileOutput, "<p class = 'lead' style='margin:0;display:inline'>No SSL Pinning</p><br> \r\n");
+						echo "File is not an APK or IPA!\r\n";
+						return false;
 					}
 				} 
 				
 				
 				
+				
 				//Extract Certificates to be read
-				if ($zip->getFromName('META-INF/CERT.RSA')!== false)
+				try
 				{
+					if ($zip->getFromName('META-INF/CERT.RSA')!== false)
+					{
 
-					$fileinfo = pathinfo('META-INF/CERT.RSA');
-					copy("zip://".realpath($path)."#META-INF/CERT.RSA", "".$target_dir."/CERT.RSA");
+						$fileinfo = pathinfo('META-INF/CERT.RSA');
+						copy("zip://".realpath($path)."#META-INF/CERT.RSA", "".$target_dir."/CERT.RSA");
+					}
+					else if ($zip->getFromName('META-INF/AND-PROD.RSA')!== false)
+					{
+						$fileinfo = pathinfo('META-INF/AND-PROD.RSA');
+						copy("zip://".realpath($path)."#META-INF/AND-PROD.RSA", $target_dir. "CERT.RSA");
+					}
+					//Extract the Android Manifest from the APK and place it in the uploads folder to be read
+					$fileinfo = pathinfo('AndroidManifest.xml');
+					
+					
+					copy("zip://".realpath($path)."#AndroidManifest.xml", $target_dir .$fileinfo['basename']);
 				}
-				else if ($zip->getFromName('META-INF/AND-PROD.RSA')!== false)
+				
+				catch (Exception $e)
 				{
-					$fileinfo = pathinfo('META-INF/AND-PROD.RSA');
-					copy("zip://".realpath($path)."#META-INF/AND-PROD.RSA", $target_dir. "CERT.RSA");
+					echo "Android Manifest and/or Certficate cannot be found!\r\n";
+					return false;
 				}
-				//Extract the Android Manifest from the APK and place it in the uploads folder to be read
-				$fileinfo = pathinfo('AndroidManifest.xml');
-				copy("zip://".realpath($path)."#AndroidManifest.xml", $target_dir .$fileinfo['basename']);
+				
+				//Stops catching known warning errors
+				restore_error_handler();
 				$zip->close();
 			}
 			else
@@ -226,12 +289,6 @@
 			$fileOutput = appendInfo($fileOutput, "<p class = 'lead'>");
 			//echo implode("<br>" , $certs); 
 			$fileOutput = appendInfo($fileOutput, implode ("<br>\r\n", $certs));
-			
-			
-			if(isset($_POST["logoCheck"]))
-			{
-				echo "</p><br><h4>Logo:</h4><img src = '". $target_dir ."/icon.png'>";
-			}
 			
 			if(isset($_POST["uploadOnly"]))
 			{

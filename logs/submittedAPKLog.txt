@@ -1,16 +1,16 @@
-<h4 style='margin:0;display:inline'>Filename: com.westernbank.mobile.apk</h4><br><br> 
+<h4 style='margin:0;display:inline'>Filename: com.fiserv.touchbankingasp_2018-06-04.apk</h4><br><br> 
 
 <br><h4>SSL Pinning:</h4><br><br>
 
-<p class = 'lead' style='margin:0;display:inline'>Pinned using HttpsURLConnection</p><br> 
+<p class = 'lead' style='margin:0;display:inline'>Pinned using OkHttp3</p><br> 
 
 </p><h4>Android Manifest Details:</h4><br> 
 
-<p class = 'lead' style='margin:0;display:inline'>Version Name :4.3.181</p><br/> 
+<p class = 'lead' style='margin:0;display:inline'>Version Name :18.1.79</p><br/> 
 
-<p class = 'lead' style='margin:0;display:inline'>Version Code :20</p><br/> 
+<p class = 'lead' style='margin:0;display:inline'>Version Code :28</p><br/> 
 
-<p class = 'lead' style='margin:0;display:inline'>Package Name :com.westernbank.mobile</p><br> 
+<p class = 'lead' style='margin:0;display:inline'>Package Name :com.fiserv.touchbankingasp</p><br> 
 
 <br><h4>Certificates:</h4> 
 
